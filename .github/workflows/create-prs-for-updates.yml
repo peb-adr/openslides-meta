@@ -20,12 +20,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - repository: openslides-autoupdate-service
-            assignee: ostcar
-            setup-action: setup-autoupdate-pr
-          - repository: openslides-backend
-            assignee: r-peschke
-          - repository: openslides-client
-            assignee: bastianjoel
+          #- repository: openslides-autoupdate-service
+          #  assignee: ostcar
+          #  setup-action: setup-autoupdate-pr
+          #- repository: openslides-backend
+          #  assignee: r-peschke
+          #- repository: openslides-client
+          #  assignee: bastianjoel
           - repository: openslides-search-service
-            assignee: bastianjoel
+            assignee: peb-adr
