@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - main
+      - staging/4*
 
 jobs:
   create-pull-requests:
     name: Create PR for dependant services
-    if: github.repository_owner == 'OpenSlides'
+    #if: github.repository_owner == 'OpenSlides'
     uses: ./.github/workflows/create-pr.yml
     with:
       repository: ${{ matrix.repository }}
