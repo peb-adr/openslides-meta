@@ -30,7 +30,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          repository: OpenSlides/${{ inputs.repository }}
+          repository: ${{ github.repository_owner }}/${{ inputs.repository }}
           path: service-repository
           fetch-depth: 0
           submodules: true
@@ -61,8 +61,8 @@ jobs:
           branch: dep/update-meta-repo
           delete-branch: true
           title: Update meta repository
-          body: "Triggered by commit [${{ inputs.commit }}](https://github.com/OpenSlides/openslides-meta/commit/${{ inputs.commit }})"
+          body: "Triggered by commit [${{ inputs.commit }}](https://github.com/${{ github.repository_owner }}/openslides-meta/commit/${{ inputs.commit }})"
           reviewers: ${{ inputs.assignee }}
           assignees: ${{ inputs.assignee }}
           labels: dependencies
-          milestone: 4
+          #milestone: 4 # TODO: PUT BACK IN

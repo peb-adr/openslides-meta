@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - main
+      - staging/4*
 
 jobs:
   create-pull-requests:
     name: Create PR for dependant services
-    if: github.repository_owner == 'OpenSlides'
+    #if: github.repository_owner == 'OpenSlides'
     uses: ./.github/workflows/create-pr.yml
     with:
       repository: ${{ matrix.repository }}
@@ -19,12 +20,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - repository: openslides-autoupdate-service
-            assignee: ostcar
-            setup-action: setup-autoupdate-pr
-          - repository: openslides-backend
-            assignee: jsangmeister
-          - repository: openslides-client
-            assignee: bastianjoel
+          #- repository: openslides-autoupdate-service
+          #  assignee: ostcar
+          #  setup-action: setup-autoupdate-pr
+          #- repository: openslides-backend
+          #  assignee: r-peschke
+          #- repository: openslides-client
+          #  assignee: bastianjoel
           - repository: openslides-search-service
-            assignee: bastianjoel
+            assignee: peb-adr
