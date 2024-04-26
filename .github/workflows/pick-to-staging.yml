@@ -45,7 +45,8 @@ jobs:
         id: cherry-pick
         run: |
           git fetch origin
-          git cherry-pick ${{ github.sha }} || {
+          # -m 1 to also be able to cherry-pick merge commits
+          git cherry-pick -m 1 ${{ github.sha }} || {
             echo "error=1" >> $GITHUB_OUTPUT
             git add .
             git cherry-pick --continue
