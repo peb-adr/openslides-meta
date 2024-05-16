@@ -57,6 +57,33 @@
 #   The field `restriction_mode` is required for every field. It puts the field into a
 #   restriction group. See https://github.com/OpenSlides/OpenSlides/wiki/Restrictions-Overview
 
+_meta:  # meta field to hold repeatedly used values
+  languages: &languages
+    - en
+    - de
+    - it
+    - es
+    - ru
+    - cs
+    - fr
+  ballot_paper_selection: &ballot_paper_selection
+    - NUMBER_OF_DELEGATES
+    - NUMBER_OF_ALL_PARTICIPANTS
+    - CUSTOM_NUMBER
+  poll_backends: &poll_backends
+    - long
+    - fast
+  onehundred_percent_bases: &onehundred_percent_bases
+    - "Y"
+    - "YN"
+    - "YNA"
+    - "N"
+    - "valid"
+    - "cast"
+    - "entitled"
+    - "entitled_present"
+    - "disabled"
+
 organization:
   id:
     type: number
@@ -113,14 +140,7 @@ organization:
   default_language:
     type: string
     restriction_mode: A
-    enum:
-      - en
-      - de
-      - it
-      - es
-      - ru
-      - cs
-      - fr
+    enum: *languages
     required: true
 
   # Saml settings
@@ -252,7 +272,7 @@ user:
     restriction_mode: A
   is_active:
     type: boolean
-    restriction_mode: D
+    restriction_mode: B
   is_physical_person:
     type: boolean
     default: true
@@ -297,7 +317,7 @@ user:
       - superadmin
       - can_manage_organization
       - can_manage_users
-    restriction_mode: E
+    restriction_mode: B
   is_present_in_meeting_ids:
     type: relation-list
     to: meeting/present_user_ids
@@ -764,14 +784,7 @@ meeting:
   language:
     type: string
     restriction_mode: A
-    enum:
-      - en
-      - de
-      - it
-      - es
-      - ru
-      - cs
-      - fr
+    enum: *languages
     required: true
     constant: true
 
@@ -980,6 +993,10 @@ meeting:
     default: internal
     restriction_mode: B
   agenda_show_internal_items_on_projector:
+    type: boolean
+    default: False
+    restriction_mode: B
+  agenda_show_topic_navigation_on_detail_view:
     type: boolean
     default: False
     restriction_mode: B
@@ -1229,10 +1246,7 @@ meeting:
   # Motion poll
   motion_poll_ballot_paper_selection:
     type: string
-    enum:
-      - NUMBER_OF_DELEGATES
-      - NUMBER_OF_ALL_PARTICIPANTS
-      - CUSTOM_NUMBER
+    enum: *ballot_paper_selection
     default: CUSTOM_NUMBER
     restriction_mode: B
   motion_poll_ballot_paper_number:
@@ -1245,16 +1259,7 @@ meeting:
     restriction_mode: B
   motion_poll_default_onehundred_percent_base:
     type: string
-    enum:
-      - "Y"
-      - "YN"
-      - "YNA"
-      - "N"
-      - "valid"
-      - "cast"
-      - "entitled"
-      - "entitled_present"
-      - "disabled"
+    enum: *onehundred_percent_bases
     default: YNA
     restriction_mode: B
   motion_poll_default_group_ids:
@@ -1263,9 +1268,7 @@ meeting:
     restriction_mode: B
   motion_poll_default_backend:
     type: string
-    enum:
-      - long
-      - fast
+    enum: *poll_backends
     default: fast
     restriction_mode: B
 
@@ -1353,6 +1356,18 @@ meeting:
   users_enable_vote_delegations:
     type: boolean
     restriction_mode: B
+  users_forbid_delegator_in_list_of_speakers:
+    type: boolean
+    restriction_mode: B
+  users_forbid_delegator_as_submitter:
+    type: boolean
+    restriction_mode: B
+  users_forbid_delegator_as_supporter:
+    type: boolean
+    restriction_mode: B
+  users_forbid_delegator_to_vote:
+    type: boolean
+    restriction_mode: B
 
   # Assignments
   assignments_export_title:
@@ -1366,10 +1381,7 @@ meeting:
   # Assignment polls
   assignment_poll_ballot_paper_selection:
     type: string
-    enum:
-      - NUMBER_OF_DELEGATES
-      - NUMBER_OF_ALL_PARTICIPANTS
-      - CUSTOM_NUMBER
+    enum: *ballot_paper_selection
     default: CUSTOM_NUMBER
     restriction_mode: B
   assignment_poll_ballot_paper_number:
@@ -1398,16 +1410,7 @@ meeting:
     restriction_mode: B
   assignment_poll_default_onehundred_percent_base:
     type: string
-    enum:
-      - "Y"
-      - "YN"
-      - "YNA"
-      - "N"
-      - "valid"
-      - "cast"
-      - "entitled"
-      - "entitled_present"
-      - "disabled"
+    enum: *onehundred_percent_bases
     default: valid
     restriction_mode: B
   assignment_poll_default_group_ids:
@@ -1416,19 +1419,14 @@ meeting:
     restriction_mode: B
   assignment_poll_default_backend:
     type: string
-    enum:
-      - long
-      - fast
+    enum: *poll_backends
     default: fast
     restriction_mode: B
 
   # Polls
   poll_ballot_paper_selection:
     type: string
-    enum:
-      - NUMBER_OF_DELEGATES
-      - NUMBER_OF_ALL_PARTICIPANTS
-      - CUSTOM_NUMBER
+    enum: *ballot_paper_selection
     restriction_mode: B
   poll_ballot_paper_number:
     type: number
@@ -1445,16 +1443,7 @@ meeting:
     restriction_mode: B
   poll_default_onehundred_percent_base:
     type: string
-    enum:
-      - "Y"
-      - "YN"
-      - "YNA"
-      - "N"
-      - "valid"
-      - "cast"
-      - "entitled"
-      - "entitled_present"
-      - "disabled"
+    enum: *onehundred_percent_bases
     default: YNA
     restriction_mode: B
   poll_default_group_ids:
@@ -1463,9 +1452,7 @@ meeting:
     restriction_mode: B
   poll_default_backend:
     type: string
-    enum:
-      - long
-      - fast
+    enum: *poll_backends
     default: fast
     restriction_mode: B
   poll_couple_countdown:
@@ -3253,9 +3240,7 @@ poll:
   backend:
     type: string
     required: True
-    enum:
-      - long
-      - fast
+    enum: *poll_backends
     default: fast
     restriction_mode: A
   is_pseudoanonymized:
@@ -3309,16 +3294,7 @@ poll:
   onehundred_percent_base:
     type: string
     required: true
-    enum:
-      - "Y"
-      - "YN"
-      - "YNA"
-      - "N"
-      - "valid"
-      - "cast"
-      - "entitled"
-      - "entitled_present"
-      - "disabled"
+    enum: *onehundred_percent_bases
     default: disabled
     restriction_mode: A
   votesvalid:
