@@ -3874,7 +3874,15 @@ projector:
     type: color
     default: "#317796"
     restriction_mode: A
+  chyron_background_color_2:
+    type: color
+    default: "#134768"
+    restriction_mode: A
   chyron_font_color:
+    type: color
+    default: "#ffffff"
+    restriction_mode: A
+  chyron_font_color_2:
     type: color
     default: "#ffffff"
     restriction_mode: A
