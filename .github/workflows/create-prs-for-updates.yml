@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - staging/4*
 
 jobs:
   create-pull-requests:
@@ -23,7 +24,7 @@ jobs:
             assignee: ostcar
             setup-action: setup-autoupdate-pr
           - repository: openslides-backend
-            assignee: jsangmeister
+            assignee: r-peschke
           - repository: openslides-client
             assignee: bastianjoel
           - repository: openslides-search-service

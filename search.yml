@@ -256,6 +256,7 @@ user:
     - organization_management_level
     - meeting_ids
     - owner_id
+    - member_number
   searchable_config:
     first_name:
       analyzer: simple
