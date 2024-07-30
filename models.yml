@@ -487,9 +487,11 @@ gender:
     constant: true
   name:
     type: string
+    required: True
     restriction_mode: A
   organization_id:
     type: relation
+    required: True
     to: organization/gender_ids
     restriction_mode: A
   user_ids:
