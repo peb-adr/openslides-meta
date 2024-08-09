@@ -2,12 +2,12 @@ autoflake==2.3.1
 black==24.4.2
 flake8==7.1.0
 isort==5.13.2
-mypy==1.10.1
-pytest==8.2.2
-pyupgrade==3.16.0
+mypy==1.11.1
+pytest==8.3.2
+pyupgrade==3.17.0
 pyyaml==6.0.1
 simplejson==3.19.2
 
 # typing
-types-PyYAML==6.0.12.20240311
-types-simplejson==3.19.0.20240310
+types-PyYAML==6.0.12.20240724
+types-simplejson==3.19.0.20240801

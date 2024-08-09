@@ -406,6 +406,9 @@ meeting_user:
     type: decimal(6)
     minimum: "0.000001"
     restriction_mode: A
+  locked_out:
+    type: boolean
+    restriction_mode: E
 
   user_id:
     type: relation
