@@ -142,6 +142,9 @@ organization:
     restriction_mode: A
     enum: *languages
     required: true
+  require_duplicate_from:
+    type: boolean
+    restriction_mode: A
 
   # Saml settings
   saml_enabled:
@@ -406,6 +409,9 @@ meeting_user:
     type: decimal(6)
     minimum: "0.000001"
     restriction_mode: A
+  locked_out:
+    type: boolean
+    restriction_mode: E
 
   user_id:
     type: relation
@@ -780,6 +786,9 @@ meeting:
     restriction_mode: B
   end_time:
     type: timestamp
+    restriction_mode: B
+  locked_from_inside:
+    type: boolean
     restriction_mode: B
   imported_at:
     type: timestamp
