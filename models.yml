@@ -3708,6 +3708,13 @@ mediafile:
   token:
     type: string
     restriction_mode: A
+  is_public:
+    type: boolean
+    restiction_mode: A
+  public_in_organization_id:
+    type: relation
+    to: organization/public_mediafile_ids
+    restriction_mode: A
   parent_id:
     type: relation
     to: mediafile/child_ids
@@ -3730,10 +3737,6 @@ mediafile:
     type: relation-list
     to: meeting_mediafile/mediafile_id
     on_delete: CASCADE
-    restriction_mode: A
-  public_in_organization_id:
-    type: relation
-    to: organization/public_mediafile_ids
     restriction_mode: A
 
 meeting_mediafile:
