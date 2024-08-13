@@ -3708,7 +3708,7 @@ mediafile:
   token:
     type: string
     restriction_mode: A
-  is_public:
+  is_global:
     type: boolean
     restiction_mode: A
   public_in_organization_id:
