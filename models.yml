@@ -486,7 +486,7 @@ meeting_user:
     restriction_mode: A
     to: structure_level/meeting_user_ids
 
-gender:
+  gender:
   id:
     type: number
     restriction_mode: A
@@ -495,6 +495,7 @@ gender:
     type: string
     required: True
     restriction_mode: A
+    description: unique
   organization_id:
     type: relation
     required: True
