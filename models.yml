@@ -210,7 +210,7 @@ organization:
   published_mediafile_ids:
     type: relation-list
     to: mediafile/published_to_meetings_in_organization_id
-    restriction_mode: D
+    restriction_mode: E
   user_ids:
     type: relation-list
     restriction_mode: C
