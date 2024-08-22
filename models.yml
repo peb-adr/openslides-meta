@@ -3719,7 +3719,7 @@ mediafile:
     restriction_mode: A
   is_published_to_meetings:
     type: boolean
-    restiction_mode: A
+    restriction_mode: A
   published_to_meetings_in_organization_id:
     type: relation
     to: organization/published_mediafile_ids
