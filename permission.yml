@@ -24,7 +24,6 @@ list_of_speakers:
     can_be_speaker:
     can_manage_moderator_notes:
         can_see_moderator_notes:
-            can_see:
 mediafile:
     can_manage:
         can_see:
