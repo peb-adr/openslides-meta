@@ -2190,7 +2190,7 @@ list_of_speakers:
     constant: true
   moderator_notes:
     type: HTMLStrict
-    restriction_mode: D
+    restriction_mode: B
 
   content_object_id:
     type: generic-relation
