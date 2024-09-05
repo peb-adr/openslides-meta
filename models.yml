@@ -3762,13 +3762,13 @@ meeting_mediafile:
     restriction_mode: A
   is_public:
     type: boolean
-    description: "Calculated in actions. inherited_access_group_ids == [] can have two causes: cancelling access groups (=> is_public := false) or no access groups at all (=> is_public := true)"
+    description: "Calculated in actions. Used to discern whether the (meeting-)mediafile can be seen by everyone, because, in the case of inherited_access_group_ids == [], it would otherwise not be clear. inherited_access_group_ids == [] can have two causes: cancelling access groups (=> is_public := false) or no access groups at all (=> is_public := true)"
     required: true
     restriction_mode: A
   inherited_access_group_ids:
     type: relation-list
     to: group/mediafile_inherited_access_group_ids
-    description: Calculated in actions.
+    description: Calculated in actions. Shows what access group permissions are actually relevant. Calculated as the intersection of this meeting_mediafiles access_group_ids and the related mediafiles potential parent mediafiles inherited_access_group_ids. If the parent has no meeting_mediafile for this meeting, its inherited access group is assumed to be the meetings admin group. If there is no parent, the inherited_access_group_ids is equal to the access_group_ids.
     restriction_mode: A
   access_group_ids:
     type: relation-list
