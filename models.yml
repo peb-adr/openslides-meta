@@ -4200,7 +4200,6 @@ chat_message:
     type: relation
     to: meeting_user/chat_message_ids
     restriction_mode: A
-    required: true
     constant: true
   chat_group_id:
     type: relation
