@@ -1968,12 +1968,12 @@ group:
     to: meeting/anonymous_group_id
     on_delete: PROTECT
     restriction_mode: A
-  mediafile_access_group_ids:
+  meeting_mediafile_access_group_ids:
     type: relation-list
     to: meeting_mediafile/access_group_ids
     equal_fields: meeting_id
     restriction_mode: A
-  mediafile_inherited_access_group_ids:
+  meeting_mediafile_inherited_access_group_ids:
     type: relation-list
     to: meeting_mediafile/inherited_access_group_ids
     description: Calculated field.
@@ -3767,12 +3767,12 @@ meeting_mediafile:
     restriction_mode: A
   inherited_access_group_ids:
     type: relation-list
-    to: group/mediafile_inherited_access_group_ids
+    to: group/meeting_mediafile_inherited_access_group_ids
     description: Calculated in actions. Shows what access group permissions are actually relevant. Calculated as the intersection of this meeting_mediafiles access_group_ids and the related mediafiles potential parent mediafiles inherited_access_group_ids. If the parent has no meeting_mediafile for this meeting, its inherited access group is assumed to be the meetings admin group. If there is no parent, the inherited_access_group_ids is equal to the access_group_ids. If the access_group_ids are empty, the interpretations is that every group has access rights, therefore the parent inherited_access_group_ids are used as-is.
     restriction_mode: A
   access_group_ids:
     type: relation-list
-    to: group/mediafile_access_group_ids
+    to: group/meeting_mediafile_access_group_ids
     restriction_mode: A
   list_of_speakers_id:
     type: relation
