@@ -1273,6 +1273,10 @@ meeting:
     type: string
     default: pseudoanonymous
     restriction_mode: B
+  motion_poll_default_method:
+    type: string
+    default: YNA
+    restriction_mode: B
   motion_poll_default_onehundred_percent_base:
     type: string
     enum: *onehundred_percent_bases
@@ -1933,6 +1937,7 @@ group:
         - motion.can_manage_polls
         - motion.can_see
         - motion.can_see_internal
+        - motion.can_see_origin
         - motion.can_support
         - poll.can_manage
         - projector.can_manage
@@ -4232,7 +4237,6 @@ chat_message:
     type: relation
     to: meeting_user/chat_message_ids
     restriction_mode: A
-    required: true
     constant: true
   chat_group_id:
     type: relation
