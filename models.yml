@@ -2400,7 +2400,7 @@ topic:
     restriction_mode: A
     constant: true
 
-  attachment_ids:
+  attachment_meeting_mediafile_ids:
     type: relation-list
     to: meeting_mediafile/attachment_ids
     equal_fields: meeting_id
@@ -2680,7 +2680,7 @@ motion:
     to: tag/tagged_ids
     equal_fields: meeting_id
     restriction_mode: C
-  attachment_ids:
+  attachment_meeting_mediafile_ids:
     type: relation-list
     to: meeting_mediafile/attachment_ids
     equal_fields: meeting_id
@@ -3581,7 +3581,7 @@ assignment:
     to: tag/tagged_ids
     equal_fields: meeting_id
     restriction_mode: A
-  attachment_ids:
+  attachment_meeting_mediafile_ids:
     type: relation-list
     to: meeting_mediafile/attachment_ids
     equal_fields: meeting_id
@@ -3791,7 +3791,7 @@ meeting_mediafile:
         - motion
         - topic
         - assignment
-      field: attachment_ids
+      field: attachment_meeting_mediafile_ids
     restriction_mode: A
 
   # Reverse relations for meetings, if a mediafile is used as a special resource
