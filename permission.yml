@@ -50,6 +50,8 @@ motion:
             can_see:
     can_support:
         can_see:
+    can_see_origin:
+        can_see:
 poll:
     can_manage:
 projector:
