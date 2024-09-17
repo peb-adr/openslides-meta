@@ -285,6 +285,7 @@ user:
     restriction_mode: A
   is_active:
     type: boolean
+    default: true
     restriction_mode: B
   is_physical_person:
     type: boolean
