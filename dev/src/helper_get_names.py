@@ -77,6 +77,16 @@ class HelperGetNames:
         return wrapper
 
     @staticmethod
+    def get_initial_letters(words: str) -> str:
+        """get only the initial letters of words, separated by _,
+        if the given string has more than 25 letters
+        """
+        if len(words) > 25:
+            return "".join([word[0] for word in words.split("_")])
+        else:
+            return words
+
+    @staticmethod
     @max_length
     def get_table_name(table_name: str) -> str:
         """get's the table name as old collection name with appendix '_t'"""
@@ -94,12 +104,10 @@ class HelperGetNames:
     @max_length
     def get_nm_table_name(own: TableFieldType, foreign: TableFieldType) -> str:
         """get's the table name n:m-relations intermediate table"""
-        if (own_str := f"{own.table}_{own.column}") < (
-            foreign_str := f"{foreign.table}_{foreign.column}"
-        ):
-            return f"nm_{own_str}_{foreign.table}"
+        if (f"{own.table}_{own.column}") < (f"{foreign.table}_{foreign.column}"):
+            return f"nm_{own.table}_{HelperGetNames.get_initial_letters(own.column)}_{foreign.table}"
         else:
-            return f"nm_{foreign_str}_{own.table}"
+            return f"nm_{foreign.table}_{HelperGetNames.get_initial_letters(foreign.column)}_{own.table}"
 
     @staticmethod
     @max_length

@@ -2337,7 +2337,7 @@ list_of_speakers:
       - motion_block
       - assignment
       - topic
-      - mediafile
+      - meeting_mediafile
     to:
       collections:
         - motion
@@ -3929,6 +3929,7 @@ mediafile:
   published_to_meetings_in_organization_id:
     type: relation
     to: organization/published_mediafile_ids
+    reference: organization
     restriction_mode: A
   parent_id:
     type: relation
@@ -3946,6 +3947,9 @@ mediafile:
     to:
       - meeting/mediafile_ids
       - organization/mediafile_ids
+    reference:
+      - meeting
+      - organization
     restriction_mode: A
     required: true
     constant: true
@@ -3963,11 +3967,13 @@ meeting_mediafile:
   mediafile_id:
     type: relation
     to: mediafile/meeting_mediafile_ids
+    reference: mediafile
     required: true
     restriction_mode: A
   meeting_id:
     type: relation
     to: meeting/meeting_mediafile_ids
+    reference: meeting
     required: true
     restriction_mode: A
   is_public:
@@ -4318,7 +4324,7 @@ projection:
     reference:
       - meeting
       - motion
-      - mediafile
+      - meeting_mediafile
       - list_of_speakers
       - motion_block
       - assignment
