@@ -365,7 +365,9 @@ class GenerateCodeBlocks:
                         foreign_table_column += (
                             f"_{table_name}_{foreign_table_field.ref_column}"
                         )
-                        foreign_table_name = foreign_table_field.table
+                        foreign_table_name = HelperGetNames.get_table_name(
+                            foreign_table_field.table
+                        )
                         foreign_table_ref_column = foreign_table_field.ref_column
                     elif type_ == "relation-list":
                         if own_table_field.table == foreign_table_field.table:
@@ -397,7 +399,9 @@ class GenerateCodeBlocks:
                     elif type_ == "relation" or foreign_table_field_ref_id:
                         own_ref_column = own_table_field.ref_column
                         foreign_table_ref_column = foreign_table_field.ref_column
-                        foreign_table_name = foreign_table_field.table
+                        foreign_table_name = HelperGetNames.get_table_name(
+                            foreign_table_field.table
+                        )
                         foreign_table_column = foreign_table_field.column
                     else:
                         raise Exception(
@@ -441,7 +445,6 @@ class GenerateCodeBlocks:
     ) -> str:
         table_letter = Helper.get_table_letter(table_name)
         foreign_letter = Helper.get_table_letter(foreign_table_name, [table_letter])
-        foreign_table_name = HelperGetNames.get_table_name(foreign_table_name)
         AGG_TEMPLATE = f"select array_agg({foreign_letter}.{{}}) from {foreign_table_name} {foreign_letter}"
         COND_TEMPLATE = (
             f" where {foreign_letter}.{{}} = {table_letter}.{own_ref_column}"
@@ -807,7 +810,7 @@ class Helper:
             field2 += "_2"
         text = Helper.INTERMEDIATE_TABLE_N_M_RELATION_TEMPLATE.substitute(
             {
-                "table_name": HelperGetNames.get_table_name(nm_table_name),
+                "table_name": nm_table_name,  # without tailing _t
                 "field1": field1,
                 "table1": HelperGetNames.get_table_name(own_table_field.table),
                 "field2": field2,
@@ -850,7 +853,7 @@ class Helper:
 
         text = Helper.INTERMEDIATE_TABLE_G_M_RELATION_TEMPLATE.substitute(
             {
-                "table_name": HelperGetNames.get_table_name(gm_table_name),
+                "table_name": gm_table_name,  # without trailing _t
                 "own_table_name": HelperGetNames.get_table_name(own_table_field.table),
                 "own_table_name_with_ref_column": (
                     own_table_name_with_ref_column := f"{own_table_field.table}_{own_table_field.ref_column}"
