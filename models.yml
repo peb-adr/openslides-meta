@@ -1,4 +1,7 @@
 ---
+# Length of names:
+#     - field name: Their length is limited to 25 characters. There are still some
+#       fields with longer names, that has to be shortened
 # Types:
 #     - Nativ datatypes: text, string (text with maxLength=256), number, boolean, JSON
 #     - HTMLStrict: A string with HTML content.
@@ -330,6 +333,7 @@ user:
     restriction_mode: A
   is_active:
     type: boolean
+    default: true
     restriction_mode: B
   is_physical_person:
     type: boolean
