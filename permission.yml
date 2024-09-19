@@ -67,3 +67,5 @@ user:
         can_update:
             can_see_sensitive_data:
                 can_see:
+    can_edit_own_delegation:
+        can_see:
