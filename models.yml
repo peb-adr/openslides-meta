@@ -1392,9 +1392,6 @@ meeting:
   users_forbid_delegator_to_vote:
     type: boolean
     restriction_mode: B
-  users_enable_delegation_self_editing:
-    type: boolean
-    restriction_mode: B
 
   # Assignments
   assignments_export_title:
