@@ -1150,13 +1150,13 @@ meeting:
     type: boolean
     default: False
     restriction_mode: B
-  motions_hide_metadata_background:
-    type: boolean
-    default: False
-    restriction_mode: B
   motions_enable_recommendation_on_projector:
     type: boolean
     default: True
+    restriction_mode: B
+  motions_hide_metadata_background:
+    type: boolean
+    default: False
     restriction_mode: B
   motions_show_referring_motions:
     type: boolean
