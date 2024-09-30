@@ -112,13 +112,9 @@ organization:
   reset_password_verbose_errors:
     type: boolean
     restriction_mode: B
-  genders:
-    type: string[]
-    default:
-      - male
-      - female
-      - diverse
-      - non-binary
+  gender_ids:
+    type: relation-list
+    to: gender/organization_id
     restriction_mode: A
 
   # Configuration (only for the server owner)
@@ -301,9 +297,6 @@ user:
     type: boolean
     default: true
     restriction_mode: D
-  gender:
-    type: string
-    restriction_mode: A
   email:
     type: string
     restriction_mode: B
@@ -322,6 +315,10 @@ user:
     type: timestamp
     restriction_mode: A
     read_only: true
+  gender_id:
+    type: relation
+    to: gender/user_ids
+    restriction_mode: A
 
   # Organization, meeting and committee
   organization_management_level:
@@ -496,6 +493,26 @@ meeting_user:
     equal_fields: meeting_id
     restriction_mode: A
     to: structure_level/meeting_user_ids
+
+gender:
+  id:
+    type: number
+    restriction_mode: A
+    constant: true
+  name:
+    type: string
+    required: True
+    restriction_mode: A
+    description: unique
+  organization_id:
+    type: relation
+    required: True
+    to: organization/gender_ids
+    restriction_mode: A
+  user_ids:
+    type: relation-list
+    to: user/gender_id
+    restriction_mode: A
 
 organization_tag:
   id:
@@ -1153,6 +1170,10 @@ meeting:
   motions_enable_recommendation_on_projector:
     type: boolean
     default: True
+    restriction_mode: B
+  motions_hide_metadata_background:
+    type: boolean
+    default: False
     restriction_mode: B
   motions_show_referring_motions:
     type: boolean
