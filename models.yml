@@ -144,6 +144,9 @@ organization:
   require_duplicate_from:
     type: boolean
     restriction_mode: A
+  enable_anonymous:
+    type: boolean
+    restriction_mode: A
 
   # Saml settings
   saml_enabled:
