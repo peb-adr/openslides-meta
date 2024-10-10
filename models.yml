@@ -1,4 +1,7 @@
 ---
+# Length of names:
+#     - field name: Their length is limited to 25 characters. There are still some
+#       fields with longer names, that has to be shortened
 # Types:
 #     - Nativ datatypes: text, string (text with maxLength=256), number, boolean, JSON
 #     - HTMLStrict: A string with HTML content.
@@ -109,13 +112,9 @@ organization:
   reset_password_verbose_errors:
     type: boolean
     restriction_mode: B
-  genders:
-    type: string[]
-    default:
-      - male
-      - female
-      - diverse
-      - non-binary
+  gender_ids:
+    type: relation-list
+    to: gender/organization_id
     restriction_mode: A
 
   # Configuration (only for the server owner)
@@ -143,6 +142,9 @@ organization:
     enum: *languages
     required: true
   require_duplicate_from:
+    type: boolean
+    restriction_mode: A
+  enable_anonymous:
     type: boolean
     restriction_mode: A
 
@@ -298,9 +300,6 @@ user:
     type: boolean
     default: true
     restriction_mode: D
-  gender:
-    type: string
-    restriction_mode: A
   email:
     type: string
     restriction_mode: B
@@ -319,6 +318,10 @@ user:
     type: timestamp
     restriction_mode: A
     read_only: true
+  gender_id:
+    type: relation
+    to: gender/user_ids
+    restriction_mode: A
 
   # Organization, meeting and committee
   organization_management_level:
@@ -493,6 +496,26 @@ meeting_user:
     equal_fields: meeting_id
     restriction_mode: A
     to: structure_level/meeting_user_ids
+
+gender:
+  id:
+    type: number
+    restriction_mode: A
+    constant: true
+  name:
+    type: string
+    required: True
+    restriction_mode: A
+    description: unique
+  organization_id:
+    type: relation
+    required: True
+    to: organization/gender_ids
+    restriction_mode: A
+  user_ids:
+    type: relation-list
+    to: user/gender_id
+    restriction_mode: A
 
 organization_tag:
   id:
@@ -1151,6 +1174,10 @@ meeting:
     type: boolean
     default: True
     restriction_mode: B
+  motions_hide_metadata_background:
+    type: boolean
+    default: False
+    restriction_mode: B
   motions_show_referring_motions:
     type: boolean
     default: True
@@ -1273,6 +1300,10 @@ meeting:
   motion_poll_default_type:
     type: string
     default: pseudoanonymous
+    restriction_mode: B
+  motion_poll_default_method:
+    type: string
+    default: YNA
     restriction_mode: B
   motion_poll_default_onehundred_percent_base:
     type: string
@@ -1934,6 +1965,7 @@ group:
         - motion.can_manage_polls
         - motion.can_see
         - motion.can_see_internal
+        - motion.can_see_origin
         - motion.can_support
         - poll.can_manage
         - projector.can_manage
@@ -1944,6 +1976,7 @@ group:
         - user.can_see_sensitive_data
         - user.can_see
         - user.can_update
+        - user.can_edit_own_delegation
     restriction_mode: A
   weight:
     type: number
@@ -4233,7 +4266,6 @@ chat_message:
     type: relation
     to: meeting_user/chat_message_ids
     restriction_mode: A
-    required: true
     constant: true
   chat_group_id:
     type: relation
