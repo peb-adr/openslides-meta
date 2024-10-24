@@ -818,13 +818,13 @@ meeting:
   # Configuration (only for the server owner)
   jitsi_domain:
     type: string
-    restriction_mode: B
+    restriction_mode: E
   jitsi_room_name:
     type: string
-    restriction_mode: B
+    restriction_mode: E
   jitsi_room_password:
     type: string
-    restriction_mode: B
+    restriction_mode: E
 
   # System
   template_for_organization_id:
