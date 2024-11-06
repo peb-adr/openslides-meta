@@ -385,6 +385,10 @@ user:
     type: relation-list
     to: poll_candidate/user_id
     restriction_mode: A
+  # action_worker_ids:
+  #   type: relation-list
+  #   to: action_worker/user_id
+  #   restriction_mode: G
 
   meeting_ids:
     type: number[]
@@ -4159,6 +4163,12 @@ action_worker:
   result:
     type: JSON
     restriction_mode: A
+  user_id:
+    type: number
+    # to: user/action_worker_ids
+    required: true
+    restriction_mode: A
+    constant: true
 
 import_preview:
   id:
