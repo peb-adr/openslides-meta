@@ -4159,6 +4159,12 @@ action_worker:
   result:
     type: JSON
     restriction_mode: A
+  user_id:
+    type: number
+    description: "Id of the calling user. If the action is called via internal route, the value will be -1."
+    required: true
+    restriction_mode: A
+    constant: true
 
 import_preview:
   id:
