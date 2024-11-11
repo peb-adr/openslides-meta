@@ -86,12 +86,15 @@ _meta:  # meta field to hold repeatedly used values
     - "entitled"
     - "entitled_present"
     - "disabled"
-
-organization:
-  id:
+  id_field: &id_field
     type: number
     restriction_mode: A
     constant: true
+    required: true
+
+organization:
+  id:
+    *id_field
   name:
     type: string
     restriction_mode: A
@@ -112,13 +115,9 @@ organization:
   reset_password_verbose_errors:
     type: boolean
     restriction_mode: B
-  genders:
-    type: string[]
-    default:
-      - male
-      - female
-      - diverse
-      - non-binary
+  gender_ids:
+    type: relation-list
+    to: gender/organization_id
     restriction_mode: A
 
   # Configuration (only for the server owner)
@@ -127,17 +126,17 @@ organization:
     restriction_mode: B
   enable_chat:
     type: boolean
-    restriction_mode: B
+    restriction_mode: A
   limit_of_meetings:
     type: number
     description: Maximum of active meetings for the whole organization. 0 means no limitation at all
-    restriction_mode: B
+    restriction_mode: C
     default: 0
     minimum: 0
   limit_of_users:
     type: number
     description: Maximum of active users for the whole organization. 0 means no limitation at all
-    restriction_mode: B
+    restriction_mode: C
     default: 0
     minimum: 0
   default_language:
@@ -146,6 +145,9 @@ organization:
     enum: *languages
     required: true
   require_duplicate_from:
+    type: boolean
+    restriction_mode: A
+  enable_anonymous:
     type: boolean
     restriction_mode: A
 
@@ -159,16 +161,16 @@ organization:
     restriction_mode: A
   saml_attr_mapping:
     type: JSON
-    restriction_mode: A
+    restriction_mode: D
   saml_metadata_idp:
     type: text
-    restriction_mode: A
+    restriction_mode: D
   saml_metadata_sp:
     type: text
-    restriction_mode: A
+    restriction_mode: D
   saml_private_key:
     type: text
-    restriction_mode: A
+    restriction_mode: D
 
   vote_decrypt_public_main_key:
     type: string
@@ -255,9 +257,7 @@ organization:
 
 user:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   username:
     type: string
     required: true
@@ -301,9 +301,6 @@ user:
     type: boolean
     default: true
     restriction_mode: D
-  gender:
-    type: string
-    restriction_mode: A
   email:
     type: string
     restriction_mode: B
@@ -322,6 +319,10 @@ user:
     type: timestamp
     restriction_mode: A
     read_only: true
+  gender_id:
+    type: relation
+    to: gender/user_ids
+    restriction_mode: A
 
   # Organization, meeting and committee
   organization_management_level:
@@ -393,10 +394,7 @@ user:
 
 meeting_user:
   id:
-    type: number
-    required: true
-    restriction_mode: A
-    constant: true
+    *id_field
 
   comment:
     type: HTMLStrict
@@ -491,11 +489,27 @@ meeting_user:
     restriction_mode: A
     to: structure_level/meeting_user_ids
 
+gender:
+  id:
+    *id_field
+  name:
+    type: string
+    required: True
+    restriction_mode: A
+    description: unique
+  organization_id:
+    type: relation
+    required: True
+    to: organization/gender_ids
+    restriction_mode: A
+  user_ids:
+    type: relation-list
+    to: user/gender_id
+    restriction_mode: A
+
 organization_tag:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: True
@@ -521,10 +535,7 @@ organization_tag:
 
 theme:
   id:
-    restriction_mode: A
-    type: number
-    required: true
-    constant: true
+    *id_field
   name:
     restriction_mode: A
     type: string
@@ -683,9 +694,7 @@ theme:
 
 committee:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: true
@@ -738,9 +747,7 @@ committee:
 
 meeting:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   external_id:
     type: string
     restriction_mode: A
@@ -801,13 +808,13 @@ meeting:
   # Configuration (only for the server owner)
   jitsi_domain:
     type: string
-    restriction_mode: B
+    restriction_mode: E
   jitsi_room_name:
     type: string
-    restriction_mode: B
+    restriction_mode: E
   jitsi_room_password:
     type: string
-    restriction_mode: B
+    restriction_mode: E
 
   # System
   template_for_organization_id:
@@ -1102,11 +1109,6 @@ meeting:
     to: motion_workflow/default_amendment_workflow_meeting_id
     required: true
     restriction_mode: B
-  motions_default_statute_amendment_workflow_id:
-    type: relation
-    to: motion_workflow/default_statute_amendment_workflow_meeting_id
-    required: true
-    restriction_mode: B
   motions_preamble:
     type: text
     default: "The assembly may decide:"
@@ -1144,6 +1146,10 @@ meeting:
     type: boolean
     default: True
     restriction_mode: B
+  motions_hide_metadata_background:
+    type: boolean
+    default: False
+    restriction_mode: B
   motions_show_referring_motions:
     type: boolean
     default: True
@@ -1158,9 +1164,6 @@ meeting:
   motions_block_slide_columns:
     type: number
     minimum: 1
-    restriction_mode: B
-  motions_statute_recommendations_by:
-    type: string
     restriction_mode: B
   motions_recommendation_text_mode:
     type: string
@@ -1191,10 +1194,6 @@ meeting:
     default: 2
     restriction_mode: B
   motions_number_with_blank:
-    type: boolean
-    default: False
-    restriction_mode: B
-  motions_statutes_enabled:
     type: boolean
     default: False
     restriction_mode: B
@@ -1581,11 +1580,6 @@ meeting:
     to: motion_workflow/meeting_id
     on_delete: CASCADE
     restriction_mode: B
-  motion_statute_paragraph_ids:
-    type: relation-list
-    to: motion_statute_paragraph/meeting_id
-    on_delete: CASCADE
-    restriction_mode: B
   motion_comment_ids:
     type: relation-list
     to: motion_comment/meeting_id
@@ -1855,9 +1849,7 @@ meeting:
 
 structure_level:
   id:
-    type: number
-    required: true
-    restriction_mode: A
+    *id_field
   name:
     type: string
     required: true
@@ -1887,9 +1879,7 @@ structure_level:
 
 group:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   external_id:
     type: string
     restriction_mode: A
@@ -1905,8 +1895,6 @@ group:
         - agenda_item.can_manage
         - agenda_item.can_see
         - agenda_item.can_see_internal
-        - agenda_item.can_manage_moderator_notes
-        - agenda_item.can_see_moderator_notes
         - assignment.can_manage
         - assignment.can_nominate_other
         - assignment.can_nominate_self
@@ -1915,6 +1903,8 @@ group:
         - list_of_speakers.can_be_speaker
         - list_of_speakers.can_manage
         - list_of_speakers.can_see
+        - list_of_speakers.can_manage_moderator_notes
+        - list_of_speakers.can_see_moderator_notes
         - mediafile.can_manage
         - mediafile.can_see
         - meeting.can_manage_logos_and_fonts
@@ -1942,6 +1932,7 @@ group:
         - user.can_see_sensitive_data
         - user.can_see
         - user.can_update
+        - user.can_edit_own_delegation
     restriction_mode: A
   weight:
     type: number
@@ -2028,9 +2019,7 @@ group:
 
 personal_note:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   note:
     type: HTMLStrict
     restriction_mode: A
@@ -2063,9 +2052,7 @@ personal_note:
 
 tag:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: true
@@ -2090,9 +2077,7 @@ tag:
 
 agenda_item:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   item_number:
     type: string
     restriction_mode: A
@@ -2116,9 +2101,6 @@ agenda_item:
     description: Given in seconds
     minimum: 0
     restriction_mode: B
-  moderator_notes:
-    type: HTMLStrict
-    restriction_mode: D
   is_internal:
     type: boolean
     description: Calculated by the server
@@ -2181,9 +2163,7 @@ agenda_item:
 
 list_of_speakers:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   closed:
     type: boolean
     default: false
@@ -2195,6 +2175,9 @@ list_of_speakers:
     required: true
     restriction_mode: A
     constant: true
+  moderator_notes:
+    type: HTMLStrict
+    restriction_mode: B
 
   content_object_id:
     type: generic-relation
@@ -2237,9 +2220,7 @@ list_of_speakers:
 
 structure_level_list_of_speakers:
   id:
-    type: number
-    required: true
-    restriction_mode: A
+    *id_field
   structure_level_id:
     type: relation
     required: true
@@ -2284,9 +2265,7 @@ structure_level_list_of_speakers:
 
 point_of_order_category:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   text:
     type: string
     required: true
@@ -2309,9 +2288,7 @@ point_of_order_category:
 
 speaker:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   begin_time:
     type: timestamp
     restriction_mode: A
@@ -2381,9 +2358,7 @@ speaker:
 
 topic:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   title:
     type: string
     required: true
@@ -2441,9 +2416,7 @@ topic:
 
 motion:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   number:
     type: string
     restriction_mode: C
@@ -2649,11 +2622,6 @@ motion:
     on_delete: CASCADE
     equal_fields: meeting_id
     restriction_mode: C
-  statute_paragraph_id:
-    type: relation
-    to: motion_statute_paragraph/motion_ids
-    equal_fields: meeting_id
-    restriction_mode: C
   comment_ids:
     type: relation-list
     to: motion_comment/motion_id
@@ -2705,9 +2673,7 @@ motion:
 
 motion_submitter:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   weight:
     type: number
     restriction_mode: A
@@ -2732,9 +2698,7 @@ motion_submitter:
 
 motion_editor:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   weight:
     type: number
     restriction_mode: A
@@ -2759,9 +2723,7 @@ motion_editor:
 
 motion_working_group_speaker:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   weight:
     type: number
     restriction_mode: A
@@ -2786,9 +2748,7 @@ motion_working_group_speaker:
 
 motion_comment:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   comment:
     type: HTMLStrict
     restriction_mode: A
@@ -2816,9 +2776,7 @@ motion_comment:
 
 motion_comment_section:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: true
@@ -2863,9 +2821,7 @@ motion_comment_section:
 
 motion_category:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: true
@@ -2914,9 +2870,7 @@ motion_category:
 
 motion_block:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   title:
     type: string
     required: true
@@ -2965,9 +2919,7 @@ motion_block:
 
 motion_change_recommendation:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   rejected:
     type: boolean
     default: false
@@ -3020,9 +2972,7 @@ motion_change_recommendation:
 
 motion_state:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: true
@@ -3159,9 +3109,7 @@ motion_state:
 
 motion_workflow:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: true
@@ -3194,10 +3142,6 @@ motion_workflow:
     type: relation
     to: meeting/motions_default_amendment_workflow_id
     restriction_mode: A
-  default_statute_amendment_workflow_meeting_id:
-    type: relation
-    to: meeting/motions_default_statute_amendment_workflow_id
-    restriction_mode: A
   meeting_id:
     type: relation
     to: meeting/motion_workflow_ids
@@ -3205,47 +3149,9 @@ motion_workflow:
     restriction_mode: A
     constant: true
 
-motion_statute_paragraph:
-  id:
-    type: number
-    restriction_mode: A
-    constant: true
-  title:
-    type: string
-    required: true
-    restriction_mode: A
-  text:
-    type: HTMLStrict
-    restriction_mode: A
-  weight:
-    type: number
-    default: 10000
-    restriction_mode: A
-  sequential_number:
-    type: number
-    description: The (positive) serial number of this model in its meeting. This number is auto-generated and read-only.
-    read_only: true
-    required: true
-    restriction_mode: A
-    constant: true
-
-  motion_ids:
-    type: relation-list
-    to: motion/statute_paragraph_id
-    equal_fields: meeting_id
-    restriction_mode: A
-  meeting_id:
-    type: relation
-    to: meeting/motion_statute_paragraph_ids
-    required: true
-    restriction_mode: A
-    constant: true
-
 poll:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   description:
     type: text
     restriction_mode: A
@@ -3415,9 +3321,7 @@ poll:
 
 option:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   weight:
     type: number
     default: 10000
@@ -3471,9 +3375,7 @@ option:
 
 vote:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   weight:
     type: decimal(6)
     restriction_mode: A
@@ -3512,9 +3414,7 @@ vote:
 
 assignment:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   title:
     type: string
     required: true
@@ -3600,9 +3500,7 @@ assignment:
 
 assignment_candidate:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   weight:
     type: number
     default: 10000
@@ -3630,9 +3528,7 @@ assignment_candidate:
 # models for the poll list election
 poll_candidate_list:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   poll_candidate_ids:
     type: relation-list
     to: poll_candidate/poll_candidate_list_id
@@ -3655,9 +3551,7 @@ poll_candidate_list:
 
 poll_candidate:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   poll_candidate_list_id:
     type: relation
     to: poll_candidate_list/poll_candidate_ids
@@ -3685,9 +3579,7 @@ poll_candidate:
 # `<media-prefix>/media/<meeting_id>/path`
 mediafile:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   title:
     type: string
     description: Title and parent_id must be unique.
@@ -3746,9 +3638,7 @@ mediafile:
 
 meeting_mediafile:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   mediafile_id:
     type: relation
     to: mediafile/meeting_mediafile_ids
@@ -3861,9 +3751,7 @@ meeting_mediafile:
 
 projector:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     restriction_mode: A
@@ -4047,9 +3935,7 @@ projector:
 # and element, these references will not change.
 projection:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   options:
     type: JSON
     restriction_mode: A
@@ -4111,9 +3997,7 @@ projection:
 
 projector_message:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   message:
     type: HTMLStrict
     restriction_mode: A
@@ -4133,9 +4017,7 @@ projector_message:
 
 projector_countdown:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   title:
     type: string
     required: true
@@ -4179,9 +4061,7 @@ projector_countdown:
 
 chat_group:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   name:
     type: string
     required: true
@@ -4216,9 +4096,7 @@ chat_group:
 
 chat_message:
   id:
-    type: number
-    restriction_mode: A
-    constant: true
+    *id_field
   content:
     type: HTMLStrict 
     required: true
@@ -4247,8 +4125,7 @@ chat_message:
 
 action_worker:
   id:
-    type: number
-    restriction_mode: A
+    *id_field
   name:
     type: string
     required: true
@@ -4272,11 +4149,16 @@ action_worker:
   result:
     type: JSON
     restriction_mode: A
+  user_id:
+    type: number
+    description: "Id of the calling user. If the action is called via internal route, the value will be -1."
+    required: true
+    restriction_mode: A
+    constant: true
 
 import_preview:
   id:
-    type: number
-    restriction_mode: A
+    *id_field
   name:
     type: string
     required: true
