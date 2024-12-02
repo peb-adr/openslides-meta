@@ -1168,7 +1168,7 @@ meeting:
     type: boolean
     default: True
     restriction_mode: B
-  motions_allow_additional_submitter_text_in_create:
+  motions_create_enable_additional_submitter_text:
     type: boolean
     restriction_mode: B
   motions_recommendations_by:
