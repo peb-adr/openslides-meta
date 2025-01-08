@@ -423,13 +423,13 @@ meeting_user:
     type: relation
     to: user/meeting_user_ids
     required: true
-    restriction_mode: A
+    restriction_mode: C
     constant: true
   meeting_id:
     type: relation
     to: meeting/meeting_user_ids
     required: true
-    restriction_mode: A
+    restriction_mode: C
     constant: true
 
   personal_note_ids:
@@ -795,13 +795,13 @@ meeting:
     restriction_mode: B
   location:
     type: string
-    restriction_mode: B
+    restriction_mode: F
   start_time:
     type: timestamp
-    restriction_mode: B
+    restriction_mode: F
   end_time:
     type: timestamp
-    restriction_mode: B
+    restriction_mode: F
   locked_from_inside:
     type: boolean
     restriction_mode: B
@@ -1312,7 +1312,7 @@ meeting:
   meeting_user_ids:
     type: relation-list
     to: meeting_user/meeting_id
-    restriction_mode: B
+    restriction_mode: F
     on_delete: CASCADE
   users_enable_presence_view:
     type: boolean
@@ -1517,7 +1517,7 @@ meeting:
     type: relation-list
     to: tag/meeting_id
     on_delete: CASCADE
-    restriction_mode: B
+    restriction_mode: F
   agenda_item_ids:
     type: relation-list
     to: agenda_item/meeting_id
@@ -1739,7 +1739,7 @@ meeting:
     type: relation
     to: committee/meeting_ids
     required: true
-    restriction_mode: B
+    restriction_mode: F
     constant: true
   default_meeting_for_committee_id:
     type: relation
@@ -1854,7 +1854,7 @@ meeting:
   admin_group_id:
     type: relation
     to: group/admin_group_for_meeting_id
-    restriction_mode: B
+    restriction_mode: F
   anonymous_group_id:
     type: relation
     to: group/anonymous_group_for_meeting_id
