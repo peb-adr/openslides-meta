@@ -60,7 +60,7 @@
 #   The field `restriction_mode` is required for every field. It puts the field into a
 #   restriction group. See https://github.com/OpenSlides/OpenSlides/wiki/Restrictions-Overview
 
-_meta:  # meta field to hold repeatedly used values
+_meta: # meta field to hold repeatedly used values
   languages: &languages
     - en
     - de
@@ -93,8 +93,7 @@ _meta:  # meta field to hold repeatedly used values
     required: true
 
 organization:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     restriction_mode: A
@@ -196,7 +195,7 @@ organization:
     restriction_mode: A
   organization_tag_ids:
     type: relation-list
-    restriction_mode: B
+    restriction_mode: A
     to: organization_tag/organization_id
   theme_id:
     type: relation
@@ -256,8 +255,7 @@ organization:
     restriction_mode: A
 
 user:
-  id:
-    *id_field
+  id: *id_field
   username:
     type: string
     required: true
@@ -393,8 +391,7 @@ user:
     constant: true
 
 meeting_user:
-  id:
-    *id_field
+  id: *id_field
 
   comment:
     type: HTMLStrict
@@ -417,13 +414,13 @@ meeting_user:
     type: relation
     to: user/meeting_user_ids
     required: true
-    restriction_mode: A
+    restriction_mode: C
     constant: true
   meeting_id:
     type: relation
     to: meeting/meeting_user_ids
     required: true
-    restriction_mode: A
+    restriction_mode: C
     constant: true
 
   personal_note_ids:
@@ -490,8 +487,7 @@ meeting_user:
     to: structure_level/meeting_user_ids
 
 gender:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: True
@@ -508,8 +504,7 @@ gender:
     restriction_mode: A
 
 organization_tag:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: True
@@ -534,8 +529,7 @@ organization_tag:
     required: true
 
 theme:
-  id:
-    *id_field
+  id: *id_field
   name:
     restriction_mode: A
     type: string
@@ -693,8 +687,7 @@ theme:
     constant: true
 
 committee:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -746,8 +739,7 @@ committee:
     constant: true
 
 meeting:
-  id:
-    *id_field
+  id: *id_field
   external_id:
     type: string
     restriction_mode: A
@@ -785,16 +777,16 @@ meeting:
     restriction_mode: B
   location:
     type: string
-    restriction_mode: B
+    restriction_mode: A
   start_time:
     type: timestamp
-    restriction_mode: B
+    restriction_mode: A
   end_time:
     type: timestamp
-    restriction_mode: B
+    restriction_mode: A
   locked_from_inside:
     type: boolean
-    restriction_mode: B
+    restriction_mode: A
   imported_at:
     type: timestamp
     restriction_mode: B
@@ -1158,6 +1150,9 @@ meeting:
     type: boolean
     default: True
     restriction_mode: B
+  motions_create_enable_additional_submitter_text:
+    type: boolean
+    restriction_mode: B
   motions_recommendations_by:
     type: string
     restriction_mode: B
@@ -1299,7 +1294,7 @@ meeting:
   meeting_user_ids:
     type: relation-list
     to: meeting_user/meeting_id
-    restriction_mode: B
+    restriction_mode: A
     on_delete: CASCADE
   users_enable_presence_view:
     type: boolean
@@ -1504,7 +1499,7 @@ meeting:
     type: relation-list
     to: tag/meeting_id
     on_delete: CASCADE
-    restriction_mode: B
+    restriction_mode: A
   agenda_item_ids:
     type: relation-list
     to: agenda_item/meeting_id
@@ -1726,7 +1721,7 @@ meeting:
     type: relation
     to: committee/meeting_ids
     required: true
-    restriction_mode: B
+    restriction_mode: A
     constant: true
   default_meeting_for_committee_id:
     type: relation
@@ -1744,7 +1739,7 @@ meeting:
     type: number[]
     description: Calculated. All user ids from all users assigned to groups of this meeting.
     read_only: true
-    restriction_mode: B
+    restriction_mode: A
   reference_projector_id:
     type: relation
     to: projector/used_as_reference_projector_meeting_id
@@ -1841,15 +1836,14 @@ meeting:
   admin_group_id:
     type: relation
     to: group/admin_group_for_meeting_id
-    restriction_mode: B
+    restriction_mode: A
   anonymous_group_id:
     type: relation
     to: group/anonymous_group_for_meeting_id
     restriction_mode: B
 
 structure_level:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -1878,8 +1872,7 @@ structure_level:
     restriction_mode: A
 
 group:
-  id:
-    *id_field
+  id: *id_field
   external_id:
     type: string
     restriction_mode: A
@@ -1924,6 +1917,7 @@ group:
         - motion.can_see_origin
         - motion.can_support
         - poll.can_manage
+        - poll.can_see_progress
         - projector.can_manage
         - projector.can_see
         - tag.can_manage
@@ -2018,8 +2012,7 @@ group:
     constant: true
 
 personal_note:
-  id:
-    *id_field
+  id: *id_field
   note:
     type: HTMLStrict
     restriction_mode: A
@@ -2051,8 +2044,7 @@ personal_note:
     constant: true
 
 tag:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -2076,8 +2068,7 @@ tag:
     constant: true
 
 agenda_item:
-  id:
-    *id_field
+  id: *id_field
   item_number:
     type: string
     restriction_mode: A
@@ -2162,8 +2153,7 @@ agenda_item:
     constant: true
 
 list_of_speakers:
-  id:
-    *id_field
+  id: *id_field
   closed:
     type: boolean
     default: false
@@ -2219,8 +2209,7 @@ list_of_speakers:
     constant: true
 
 structure_level_list_of_speakers:
-  id:
-    *id_field
+  id: *id_field
   structure_level_id:
     type: relation
     required: true
@@ -2264,8 +2253,7 @@ structure_level_list_of_speakers:
     restriction_mode: A
 
 point_of_order_category:
-  id:
-    *id_field
+  id: *id_field
   text:
     type: string
     required: true
@@ -2287,8 +2275,7 @@ point_of_order_category:
     restriction_mode: A
 
 speaker:
-  id:
-    *id_field
+  id: *id_field
   begin_time:
     type: timestamp
     restriction_mode: A
@@ -2357,8 +2344,7 @@ speaker:
     constant: true
 
 topic:
-  id:
-    *id_field
+  id: *id_field
   title:
     type: string
     required: true
@@ -2415,8 +2401,7 @@ topic:
     constant: true
 
 motion:
-  id:
-    *id_field
+  id: *id_field
   number:
     type: string
     restriction_mode: C
@@ -2672,8 +2657,7 @@ motion:
     constant: true
 
 motion_submitter:
-  id:
-    *id_field
+  id: *id_field
   weight:
     type: number
     restriction_mode: A
@@ -2697,8 +2681,7 @@ motion_submitter:
     constant: true
 
 motion_editor:
-  id:
-    *id_field
+  id: *id_field
   weight:
     type: number
     restriction_mode: A
@@ -2722,8 +2705,7 @@ motion_editor:
     constant: true
 
 motion_working_group_speaker:
-  id:
-    *id_field
+  id: *id_field
   weight:
     type: number
     restriction_mode: A
@@ -2747,8 +2729,7 @@ motion_working_group_speaker:
     constant: true
 
 motion_comment:
-  id:
-    *id_field
+  id: *id_field
   comment:
     type: HTMLStrict
     restriction_mode: A
@@ -2775,8 +2756,7 @@ motion_comment:
     constant: true
 
 motion_comment_section:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -2820,8 +2800,7 @@ motion_comment_section:
     constant: true
 
 motion_category:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -2869,8 +2848,7 @@ motion_category:
     constant: true
 
 motion_block:
-  id:
-    *id_field
+  id: *id_field
   title:
     type: string
     required: true
@@ -2918,8 +2896,7 @@ motion_block:
     constant: true
 
 motion_change_recommendation:
-  id:
-    *id_field
+  id: *id_field
   rejected:
     type: boolean
     default: false
@@ -2971,8 +2948,7 @@ motion_change_recommendation:
     constant: true
 
 motion_state:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -3108,8 +3084,7 @@ motion_state:
     constant: true
 
 motion_workflow:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -3150,8 +3125,7 @@ motion_workflow:
     constant: true
 
 poll:
-  id:
-    *id_field
+  id: *id_field
   description:
     type: text
     restriction_mode: A
@@ -3320,8 +3294,7 @@ poll:
     constant: true
 
 option:
-  id:
-    *id_field
+  id: *id_field
   weight:
     type: number
     default: 10000
@@ -3374,8 +3347,7 @@ option:
     constant: true
 
 vote:
-  id:
-    *id_field
+  id: *id_field
   weight:
     type: decimal(6)
     restriction_mode: A
@@ -3413,8 +3385,7 @@ vote:
     constant: true
 
 assignment:
-  id:
-    *id_field
+  id: *id_field
   title:
     type: string
     required: true
@@ -3499,8 +3470,7 @@ assignment:
     constant: true
 
 assignment_candidate:
-  id:
-    *id_field
+  id: *id_field
   weight:
     type: number
     default: 10000
@@ -3527,8 +3497,7 @@ assignment_candidate:
 
 # models for the poll list election
 poll_candidate_list:
-  id:
-    *id_field
+  id: *id_field
   poll_candidate_ids:
     type: relation-list
     to: poll_candidate/poll_candidate_list_id
@@ -3550,8 +3519,7 @@ poll_candidate_list:
     constant: true
 
 poll_candidate:
-  id:
-    *id_field
+  id: *id_field
   poll_candidate_list_id:
     type: relation
     to: poll_candidate_list/poll_candidate_ids
@@ -3578,8 +3546,7 @@ poll_candidate:
 # Mediafiles are delivered by the mediafile server with the URL
 # `<media-prefix>/media/<meeting_id>/path`
 mediafile:
-  id:
-    *id_field
+  id: *id_field
   title:
     type: string
     description: Title and parent_id must be unique.
@@ -3637,8 +3604,7 @@ mediafile:
     restriction_mode: A
 
 meeting_mediafile:
-  id:
-    *id_field
+  id: *id_field
   mediafile_id:
     type: relation
     to: mediafile/meeting_mediafile_ids
@@ -3750,8 +3716,7 @@ meeting_mediafile:
     restriction_mode: A
 
 projector:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     restriction_mode: A
@@ -3934,8 +3899,7 @@ projector:
 # projector-specific, meaning that once a projection is created for a projector
 # and element, these references will not change.
 projection:
-  id:
-    *id_field
+  id: *id_field
   options:
     type: JSON
     restriction_mode: A
@@ -3996,8 +3960,7 @@ projection:
     constant: true
 
 projector_message:
-  id:
-    *id_field
+  id: *id_field
   message:
     type: HTMLStrict
     restriction_mode: A
@@ -4016,8 +3979,7 @@ projector_message:
     constant: true
 
 projector_countdown:
-  id:
-    *id_field
+  id: *id_field
   title:
     type: string
     required: true
@@ -4060,8 +4022,7 @@ projector_countdown:
     constant: true
 
 chat_group:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -4070,7 +4031,7 @@ chat_group:
     type: number
     default: 10000
     restriction_mode: A
-  
+
   chat_message_ids:
     type: relation-list
     to: chat_message/chat_group_id
@@ -4095,10 +4056,9 @@ chat_group:
     constant: true
 
 chat_message:
-  id:
-    *id_field
+  id: *id_field
   content:
-    type: HTMLStrict 
+    type: HTMLStrict
     required: true
     restriction_mode: A
   created:
@@ -4124,8 +4084,7 @@ chat_message:
     constant: true
 
 action_worker:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
@@ -4157,8 +4116,7 @@ action_worker:
     constant: true
 
 import_preview:
-  id:
-    *id_field
+  id: *id_field
   name:
     type: string
     required: true
