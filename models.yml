@@ -449,11 +449,13 @@ meeting_user:
     type: relation-list
     to: motion_editor/meeting_user_id
     equal_fields: meeting_id
+    on_delete: CASCADE
     restriction_mode: A
   motion_working_group_speaker_ids:
     type: relation-list
     to: motion_working_group_speaker/meeting_user_id
     equal_fields: meeting_id
+    on_delete: CASCADE
     restriction_mode: A
   motion_submitter_ids:
     type: relation-list
