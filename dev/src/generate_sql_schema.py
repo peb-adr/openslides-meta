@@ -69,7 +69,7 @@ class GenerateCodeBlocks:
     @classmethod
     def generate_the_code(
         cls,
-    ) -> tuple[str, str, str, str, str, list[str], str, str, list[str]]:
+    ) -> tuple[str, str, str, str, str, list[str], str, str, str, list[str]]:
         """
         Return values:
           pre_code: Type definitions etc., which should all appear before first table definitions
@@ -165,7 +165,9 @@ class GenerateCodeBlocks:
             # schema_zone_texts is filled per model field.
             # If any fields for this collection generated table code, create the main notify trigger on it.
             if schema_zone_texts["table"]:
-                create_trigger_notify_code += Helper.get_notify_trigger(table_name) + "\n"
+                create_trigger_notify_code += (
+                    Helper.get_notify_trigger(table_name) + "\n"
+                )
             # Special triggers (e.g. for relation fields) come after
             # TODO: needs to be filled in the get_*_relation_*_type functions
             if code := schema_zone_texts["create_trigger_notify"]:
@@ -762,7 +764,7 @@ class Helper:
     def get_notify_trigger(table_name: str) -> str:
         own_table = HelperGetNames.get_table_name(table_name)
         code = f"CREATE TRIGGER modified_model AFTER INSERT OR UPDATE OR DELETE ON {own_table}\n"
-        code += f"FOR EACH ROW EXECUTE FUNCTION notify_modified_models();"
+        code += "FOR EACH ROW EXECUTE FUNCTION notify_modified_models();"
         return code
 
     @staticmethod
@@ -1146,7 +1148,9 @@ def main() -> None:
         dest.write(view_name_code)
         dest.write("\n\n-- Alter table relations\n")
         dest.write(alter_table_code)
-        dest.write("\n\n-- Create triggers checking foreign_id not null for relation-lists\n")
+        dest.write(
+            "\n\n-- Create triggers checking foreign_id not null for relation-lists\n"
+        )
         dest.write(create_trigger_relationlistnotnull_code)
         dest.write("\n\n-- Create triggers for notify\n")
         dest.write(create_trigger_notify_code)
