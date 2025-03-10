@@ -1291,6 +1291,19 @@ meeting:
     enum: *poll_backends
     default: fast
     restriction_mode: B
+  motion_poll_projection_name_order_first:
+    type: string
+    enum:
+      - first_name
+      - last_name
+    default: last_name
+    required: true
+    restriction_mode: B
+  motion_poll_projection_max_columns:
+    type: number
+    default: 6
+    required: true
+    restriction_mode: B
 
   # poll list election
   poll_candidate_list_ids:
@@ -3226,10 +3239,10 @@ poll:
   entitled_users_at_stop:
     type: JSON
     restriction_mode: A
-  vote_count:
-    type: number
+  has_voted_user_ids:
+    type: number[]
     calculated: true
-    description: get it from vote-service, anyway not handled by backend
+    description: user_ids of the users, that have voted, while a poll is running.
     restriction_mode: C
   sequential_number:
     type: number
