@@ -9,7 +9,7 @@ on:
 jobs:
   create-pull-requests:
     name: Create PR for dependant services
-    if: github.repository_owner == 'OpenSlides'
+    if: github.repository_owner == 'peb-adr'
     uses: ./.github/workflows/create-pr.yml
     with:
       repository: ${{ matrix.repository }}
