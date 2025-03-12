@@ -39,7 +39,7 @@ jobs:
 
       - name: Checkout meta repository commit
         working-directory: service-repository/.git/modules/openslides-meta/
-        run: git fetch origin && git checkout ${{ inputs.commit }}
+        run: git remote set-url origin https://github.com/peb-adr/openslides-meta && git fetch origin && git checkout ${{ inputs.commit }}
 
       - name: Update repository files
         if: inputs.setup-action != ''
