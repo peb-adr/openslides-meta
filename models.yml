@@ -142,7 +142,7 @@ organization:
     type: string
     restriction_mode: A
     enum: *languages
-    required: true
+    default: en
   require_duplicate_from:
     type: boolean
     restriction_mode: A
@@ -352,12 +352,6 @@ user:
     to: committee/manager_ids
     restriction_mode: E
 
-  # for the motion forwarding
-  forwarding_committee_ids:
-    type: relation-list
-    to: committee/forwarding_user_id
-    restriction_mode: E
-
   meeting_user_ids:
     type: relation-list
     to: meeting_user/user_id
@@ -560,7 +554,7 @@ theme:
   accent_500:
     restriction_mode: A
     type: color
-    required: true
+    default: "#2196f3"
   accent_600:
     restriction_mode: A
     type: color
@@ -603,7 +597,7 @@ theme:
   primary_500:
     restriction_mode: A
     type: color
-    required: true
+    default: "#317796"
   primary_600:
     restriction_mode: A
     type: color
@@ -646,7 +640,7 @@ theme:
   warn_500:
     restriction_mode: A
     type: color
-    required: true
+    default: "#f06400"
   warn_600:
     restriction_mode: A
     type: color
@@ -735,10 +729,6 @@ committee:
     type: relation-list
     to: committee/forward_to_committee_ids
     restriction_mode: B
-  forwarding_user_id:
-    type: relation
-    to: user/forwarding_committee_ids
-    restriction_mode: B
   organization_tag_ids:
     type: relation-list
     to: organization_tag/tagged_ids
@@ -806,7 +796,7 @@ meeting:
     type: string
     restriction_mode: F
     enum: *languages
-    required: true
+    default: "en"
     constant: true
 
   # Configuration (only for the server owner)
@@ -1131,6 +1121,14 @@ meeting:
     default: 85
     restriction_mode: A
   motions_reason_required:
+    type: boolean
+    default: False
+    restriction_mode: B
+  motions_origin_motion_toggle_default:
+    type: boolean
+    default: False
+    restriction_mode: B
+  motions_enable_origin_motion_display:
     type: boolean
     default: False
     restriction_mode: B
