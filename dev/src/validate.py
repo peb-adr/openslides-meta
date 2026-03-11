@@ -6,7 +6,12 @@ from typing import Any, cast
 import simplejson as json
 import yaml
 
-KEYSEPARATOR = "/"
+from .helper_get_names import (
+    DEFAULT_COLLECTION_META,
+    DEFAULT_COLLECTIONS_DIR,
+    KEYSEPARATOR,
+)
+
 MAX_FIELD_NAME_LENGTH = 63
 
 _collection_regex = r"[a-z](?:[a-z_]+[a-z]+)?"
@@ -19,9 +24,6 @@ COLLECTIONFIELD_REGEX = re.compile(f"^{_collection_regex}{KEYSEPARATOR}{_field_r
 DECIMAL_REGEX = re.compile(r"^-?(\d|[1-9]\d+)\.\d{6}$")
 COLOR_REGEX = re.compile(r"^#[0-9a-f]{6}$")
 
-DEFAULT_COLLECTIONS_DIR = str(
-    (Path(__file__).parent / ".." / ".." / "collections").resolve()
-)
 
 RELATION_TYPES = (
     "relation",
@@ -35,6 +37,7 @@ DATA_TYPES = (
     "number",
     "string[]",
     "number[]",
+    "text[]",
     "boolean",
     "JSON",
     "HTMLStrict",
@@ -56,6 +59,8 @@ OPTIONAL_ATTRIBUTES = (
     "required",
     "read_only",
     "constant",
+    "unique",
+    "sequence_scope",
 )
 
 
@@ -70,7 +75,14 @@ class Checker:
         self._load_collections(collections_dir)
 
     def _load_collections(self, collections_dir: str) -> None:
+        meta_path = Path(DEFAULT_COLLECTION_META)
         collections_path = Path(collections_dir)
+
+        meta_text = ["_meta:\n"]
+        meta_text.extend(
+            f"  {line}"
+            for line in Path(meta_path).read_text().splitlines(keepends=True)
+        )
 
         if not collections_path.exists():
             raise CheckException(
@@ -89,8 +101,12 @@ class Checker:
 
         for yaml_file in yaml_files:
             try:
-                with open(yaml_file, "rb") as f:
-                    data = yaml.safe_load(f.read())
+                yaml_content = meta_text.copy() + [f"{yaml_file.stem}:\n"]
+                yaml_content.extend(
+                    f"  {line}"
+                    for line in Path(yaml_file).read_text().splitlines(keepends=True)
+                )
+                data = yaml.safe_load("".join(yaml_content))
 
                 if not isinstance(data, dict):
                     self.errors.append(
@@ -98,7 +114,7 @@ class Checker:
                     )
                     continue
 
-                self.models[yaml_file.stem] = data
+                self.models[yaml_file.stem] = data[yaml_file.stem]
 
             except yaml.YAMLError as e:
                 self.errors.append(f"Error parsing '{yaml_file.name}': {e}")
@@ -196,8 +212,18 @@ class Checker:
         if field.get("calculated"):
             return
 
+        if field_name := field.get("sequence_scope", ""):
+            if type != "number":
+                self.errors.append(
+                    f"Sequences can only be generated for number fields. {collectionfield} is {type}."
+                )
+            if field_name not in self.models[collection]:
+                self.errors.append(
+                    f"{field_name} can not be used as a source of sequence scope since it is not part of {collection}."
+                )
+
         valid_attributes = list(OPTIONAL_ATTRIBUTES) + required_attributes
-        if type == "string[]":
+        if type in ["string[]", "text[]"]:
             valid_attributes.append("items")
             if "items" in field and "enum" not in field["items"]:
                 self.errors.append(
@@ -247,6 +273,7 @@ class Checker:
             valid_attributes.append("equal_fields")
             if nested and type in ("relation", "relation-list"):
                 valid_attributes.append("enum")
+            valid_attributes.extend(("reference", "deferred", "sql"))
 
         for attr in field.keys():
             if attr not in valid_attributes:
@@ -274,7 +301,7 @@ class Checker:
                 self.errors.append(
                     f"Value '{value}' for '{collectionfield}' is not a {type_str}."
                 )
-        elif type_str in ("string[]", "number[]"):
+        elif type_str in ("string[]", "number[]", "text[]"):
             if not isinstance(value, list):
                 self.errors.append(
                     f"Value '{value}' for '{collectionfield}' is not a {type_str}."
