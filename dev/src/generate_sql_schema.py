@@ -25,7 +25,7 @@ MODELS: dict[str, dict[str, Any]] = {}
 
 # Set log level for sqlfluff
 for name in logging.root.manager.loggerDict:
-    if 'sqlfluff' in name:
+    if "sqlfluff" in name:
         logging.getLogger(name).setLevel(logging.WARN)
 
 
