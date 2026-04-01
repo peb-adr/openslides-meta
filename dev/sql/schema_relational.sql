@@ -847,6 +847,7 @@ CREATE TABLE motion_t (
     sequential_number integer NOT NULL,
     CONSTRAINT unique_motion_sequential_number_meeting_id UNIQUE (sequential_number, meeting_id),
     title varchar(256) NOT NULL,
+    diff_version varchar(256),
     text text,
     text_hash varchar(256),
     amendment_paragraphs jsonb,
