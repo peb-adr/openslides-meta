@@ -2,7 +2,7 @@
 
 from json import load
 from yaml import safe_load
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
 import sys
 
 
@@ -14,25 +14,35 @@ DIFF = []
 
 
 def list_type_is_equal(l1, l2):
-        is_equal = False
+    is_equal = False
 
-        # EXPECTED DIFF: empty list becomes None
-        if type(l1) is list and l2 is None:
-            if len(l1) == 0:
-                is_equal = True
-        # EXPECTED DIFF: non-empty list may be in different order
-        elif type(l1) is list and type(l2) is list:
-            if sorted(l1) == sorted(l2):
-                is_equal = True
-        # TODO: not sure if this is really expected ...
-        #       apparently migration behavior has changed ...
-        #       revisit with more recent everything.json
-        # IF this is indeed correct to compare this way, the sorted equality
-        # above is obsoleted / included by this.
-            elif set(l1).issubset(l2):
-                is_equal = True
+    # EXPECTED DIFF: empty list becomes None
+    if type(l1) is list and l2 is None:
+        if len(l1) == 0:
+            is_equal = True
+    # EXPECTED DIFF: non-empty list may be in different order
+    elif type(l1) is list and type(l2) is list:
+        if sorted(l1) == sorted(l2):
+            is_equal = True
+    # TODO: not sure if this is really expected ...
+    #       apparently migration behavior has changed ...
+    #       revisit with more recent everything.json
+    # IF this is indeed correct to compare this way, the sorted equality
+    # above is obsoleted / included by this.
+        elif set(l1).issubset(l2):
+            is_equal = True
 
-        return is_equal
+    return is_equal
+
+
+def timestamp_is_equal(s1, s2):
+    # EXPECTED DIFF: UNIX timestamps become ISO timestamps
+    # We assume timestamps were stored in UTC before
+    # -> We might need a pre430 migration ensuring this
+    t1 = datetime.fromtimestamp(s1, timezone.utc) - timedelta(hours=0)
+    t2 = datetime.fromisoformat(s2)
+
+    return t1.timestamp() == t2.timestamp()
 
 
 def check_field(collection, model_id, field_name):
@@ -61,7 +71,6 @@ def check_field(collection, model_id, field_name):
     elif field_type == 'generic-relation':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'generic-relation-list':
-        is_equal = field_value_d1 == field_value_d2
         is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'HTMLPermissive':
         is_equal = field_value_d1 == field_value_d2
@@ -72,30 +81,21 @@ def check_field(collection, model_id, field_name):
     elif field_type == 'number':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'number[]':
-        is_equal = field_value_d1 == field_value_d2
         is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'relation':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'relation-list':
-        is_equal = field_value_d1 == field_value_d2
         is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'string':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'string[]':
-        is_equal = field_value_d1 == field_value_d2
         is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'text':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'text[]':
-        is_equal = field_value_d1 == field_value_d2
         is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'timestamp':
-        # EXPECTED DIFF: UNIX timestamps become ISO timestamps
-        # We assume timestamps were stored in UTC before
-        # -> We might need a pre430 migration ensuring this
-        t1 = datetime.fromtimestamp(field_value_d1, timezone.utc)
-        t2 = datetime.fromisoformat(field_value_d2)
-        is_equal = t1.timestamp() == t2.timestamp()
+        is_equal = timestamp_is_equal(field_value_d1, field_value_d2)
 
     if not is_equal:
         DIFF += [f"{collection}/{model_id}/{field_name} of type {field_type} differs."]
