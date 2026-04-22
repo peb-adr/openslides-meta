@@ -1,13 +1,15 @@
 #!/bin/python3
 
+from os import listdir
+from os.path import splitext, join
 from json import load
 from yaml import safe_load
 from datetime import datetime,timezone,timedelta
 import sys
 
 
-MODELS_FILENAME = 'models.yml'
-MODELS = {}
+COLLECTIONS_DIRNAME = 'collections/'
+COLLECTIONS = {}
 D1 = {}
 D2 = {}
 DIFF = []
@@ -98,12 +100,12 @@ def check_field_default(collection, model_id, field_name):
 
     info(f"check_field_default: {collection}/{model_id}/{field_name} ...")
 
-    if 'default' not in MODELS[collection][field_name].keys():
+    if 'default' not in COLLECTIONS[collection][field_name].keys():
         info(f"no default defined - not visiting")
         return
 
-    field_type = MODELS[collection][field_name]['type']
-    field_value_default = MODELS[collection][field_name]['default']
+    field_type = COLLECTIONS[collection][field_name]['type']
+    field_value_default = COLLECTIONS[collection][field_name]['default']
     field_value_d2 = D2[collection][model_id][field_name]
     is_equal = compare_value(field_type, field_value_default, field_value_d2)
 
@@ -121,9 +123,10 @@ def check_field(collection, model_id, field_name):
 
     info(f"check_field: {collection}/{model_id}/{field_name} ...")
 
-    field_type = MODELS[collection][field_name]['type']
+    field_type = COLLECTIONS[collection][field_name]['type']
     field_value_d1 = D1[collection][model_id][field_name]
     field_value_d2 = D2[collection][model_id][field_name]
+
 
     is_equal = compare_value(field_type, field_value_d1, field_value_d2)
 
@@ -225,17 +228,24 @@ def check_collection(collection):
 
 
 def check_all():
-    for collection in MODELS.keys():
+    for collection in COLLECTIONS.keys():
         if collection == '_meta':
             continue
         check_collection(collection)
 
 
-def load_models():
-    global MODELS
+def load_collections():
+    global COLLECTIONS
 
-    with open(MODELS_FILENAME, 'r') as f:
-        MODELS = safe_load(f)
+    collection_files = listdir(COLLECTIONS_DIRNAME)
+    for fname in collection_files:
+        collection, ext = splitext(fname)
+
+        if ext != '.yml':
+            continue
+
+        with open(join(COLLECTIONS_DIRNAME, fname)) as f:
+            COLLECTIONS[collection] = safe_load(f)['fields']
 
 
 def load_input():
@@ -289,7 +299,7 @@ def info(s):
 
 
 def main():
-    load_models()
+    load_collections()
     load_input()
 
     check_all()
