@@ -102,6 +102,18 @@ def check_field(collection, model_id, field_name):
         DIFF += [f"  D1: {field_value_d1}"]
         DIFF += [f"  D2: {field_value_d2}"]
 
+
+    # Fields of type generic-relation will additionally appear in an expanded form
+    if field_type == 'generic-relation':
+        if not is_equal:
+            info(f"field values not equal - not visiting expanded {field_name} fields")
+        else:
+            related_collection, _ = field_value_d1.split('/')
+            expanded_field_name = f"{field_name}_{related_collection}_id"
+            # Remove visited field
+            info(f"visited expanded field in D2: {collection}/{model_id}/{expanded_field_name}")
+            del D2[collection][model_id][expanded_field_name]
+
     # Remove visited field
     info(f"visited field in D1: {collection}/{model_id}/{field_name}")
     del D1[collection][model_id][field_name]
