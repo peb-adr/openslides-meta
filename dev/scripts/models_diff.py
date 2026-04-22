@@ -45,63 +45,92 @@ def timestamp_is_equal(s1, s2):
     return t1.timestamp() == t2.timestamp()
 
 
+def compare_value(type_, value_d1, value_d2):
+
+    # assume not equal until proven otherwise
+    is_equal = False
+
+    # To be very explicit we will now look at all known field types distinctly,
+    # although in most cases '==' equality should suffice.
+
+    if type_ == 'boolean':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'color':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'decimal(6)':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'float':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'generic-relation':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'generic-relation-list':
+        is_equal = list_type_is_equal(value_d1, value_d2)
+    elif type_ == 'HTMLPermissive':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'HTMLStrict':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'JSON':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'number':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'number[]':
+        is_equal = list_type_is_equal(value_d1, value_d2)
+    elif type_ == 'relation':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'relation-list':
+        is_equal = list_type_is_equal(value_d1, value_d2)
+    elif type_ == 'string':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'string[]':
+        is_equal = list_type_is_equal(value_d1, value_d2)
+    elif type_ == 'text':
+        is_equal = value_d1 == value_d2
+    elif type_ == 'text[]':
+        is_equal = list_type_is_equal(value_d1, value_d2)
+    elif type_ == 'timestamp':
+        is_equal = timestamp_is_equal(value_d1, value_d2)
+
+    return is_equal
+
+
+def check_field_default(collection, model_id, field_name):
+    global D1, D2, DIFF
+
+    info(f"check_field_default: {collection}/{model_id}/{field_name} ...")
+
+    if 'default' not in MODELS[collection][field_name].keys():
+        info(f"no default defined - not visiting")
+        return
+
+    field_type = MODELS[collection][field_name]['type']
+    field_value_default = MODELS[collection][field_name]['default']
+    field_value_d2 = D2[collection][model_id][field_name]
+    is_equal = compare_value(field_type, field_value_default, field_value_d2)
+
+    if not is_equal:
+        DIFF += [f"{collection}/{model_id}/{field_name} of type {field_type} differs from default."]
+        DIFF += [f"  D1: NOT SET"]
+        DIFF += [f"  D2: {field_value_d2}"]
+
+    info(f"visited field in D2: {collection}/{model_id}/{field_name} (default value)")
+    del D2[collection][model_id][field_name]
+
+
 def check_field(collection, model_id, field_name):
     global D1, D2, DIFF
 
     info(f"check_field: {collection}/{model_id}/{field_name} ...")
 
-    # To be very explicit we will now look at all known field types distinctly,
-    # although in most cases '==' equality should suffice.
-
     field_type = MODELS[collection][field_name]['type']
     field_value_d1 = D1[collection][model_id][field_name]
     field_value_d2 = D2[collection][model_id][field_name]
 
-    # assume not equal until proven otherwise
-    is_equal = False
-
-    if field_type == 'boolean':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'color':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'decimal(6)':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'float':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'generic-relation':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'generic-relation-list':
-        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
-    elif field_type == 'HTMLPermissive':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'HTMLStrict':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'JSON':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'number':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'number[]':
-        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
-    elif field_type == 'relation':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'relation-list':
-        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
-    elif field_type == 'string':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'string[]':
-        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
-    elif field_type == 'text':
-        is_equal = field_value_d1 == field_value_d2
-    elif field_type == 'text[]':
-        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
-    elif field_type == 'timestamp':
-        is_equal = timestamp_is_equal(field_value_d1, field_value_d2)
+    is_equal = compare_value(field_type, field_value_d1, field_value_d2)
 
     if not is_equal:
         DIFF += [f"{collection}/{model_id}/{field_name} of type {field_type} differs."]
         DIFF += [f"  D1: {field_value_d1}"]
         DIFF += [f"  D2: {field_value_d2}"]
-
 
     # Fields of type generic-relation will additionally appear in an expanded form
     if field_type == 'generic-relation':
@@ -143,10 +172,12 @@ def check_model(collection, model_id):
 
         check_field(collection, model_id, field_name)
 
-    # Fields not present in D1 may appear with value None in D2
+    # Fields not present in D1 may appear with default value or None in D2
     remaining_field_names_d2 = list(D2[collection][model_id].keys())
     for field_name in remaining_field_names_d2:
-        if D2[collection][model_id][field_name] is None:
+        if D2[collection][model_id][field_name] is not None:
+            check_field_default(collection, model_id, field_name)
+        else:
             info(f"visited field in D2: {collection}/{model_id}/{field_name} (null value)")
             del D2[collection][model_id][field_name]
 
@@ -228,6 +259,7 @@ def print_models(d):
 
 def print_results():
     print()
+
     if len(D1) == 0 and len(D2) == 0:
         print("All collections, models and fields have been visited and compared.")
     else:
