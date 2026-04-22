@@ -102,14 +102,18 @@ def check_field(collection, model_id, field_name):
         DIFF += [f"  D1: {field_value_d1}"]
         DIFF += [f"  D2: {field_value_d2}"]
 
+    # Remove visited field
+    del D1[collection][model_id][field_name]
+    del D2[collection][model_id][field_name]
+
 
 def check_model(collection, model_id):
     global D1, D2, DIFF
 
     info(f"check_model: {collection}/{model_id} ...")
 
-    field_names_d1 = D1[collection][model_id].keys()
-    field_names_d2 = D2[collection][model_id].keys()
+    field_names_d1 = list(D1[collection][model_id].keys())
+    field_names_d2 = list(D2[collection][model_id].keys())
 
     for field_name in field_names_d1:
         # EXPECTED DIFF: meta_deleted field was removed
@@ -124,6 +128,10 @@ def check_model(collection, model_id):
             continue
 
         check_field(collection, model_id, field_name)
+
+    # Remove visited model
+    del D1[collection][model_id]
+    del D2[collection][model_id]
 
 
 def check_collection(collection):
@@ -141,8 +149,8 @@ def check_collection(collection):
 
     info(f"check_collection: {collection} ...")
 
-    model_ids_d1 = D1[collection].keys()
-    model_ids_d2 = D2[collection].keys()
+    model_ids_d1 = list(D1[collection].keys())
+    model_ids_d2 = list(D2[collection].keys())
 
     for model_id in model_ids_d1:
         if model_id not in model_ids_d2:
@@ -150,6 +158,10 @@ def check_collection(collection):
             continue
 
         check_model(collection, model_id)
+
+    # Remove visited collection
+    del D1[collection]
+    del D2[collection]
 
 
 def check_all():
@@ -178,8 +190,25 @@ def load_input():
         D2 = load(f2)
 
 
-def print_diff():
-    print('\n'.join(DIFF))
+def print_results():
+    if len(D1) == 0 and len(D2) == 0:
+        print("All collections, models and fields have been visited and compared.")
+    else:
+        print("Not all collections, models and fields were compared.")
+        print("This hints to inconsistent data.")
+        print("Remaining data, that was not visited.")
+        print()
+        print(f"D1: {D1}")
+        print(f"D2: {D2}")
+
+    print()
+
+    if len(DIFF) == 0:
+        print("No differences found.")
+    else:
+        print("Found differences.")
+        print()
+        print('\n'.join(DIFF))
 
 
 def info(s):
@@ -192,7 +221,7 @@ def main():
     load_input()
 
     check_all()
-    print_diff()
+    print_results()
 
 
 if __name__ == '__main__':
