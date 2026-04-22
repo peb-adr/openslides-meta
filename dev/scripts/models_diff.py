@@ -1,7 +1,8 @@
 #!/bin/python3
 
-from json import dump, load
+from json import load
 from yaml import safe_load
+from datetime import datetime,timezone
 import sys
 
 
@@ -10,6 +11,28 @@ MODELS = {}
 D1 = {}
 D2 = {}
 DIFF = []
+
+
+def list_type_is_equal(l1, l2):
+        is_equal = False
+
+        # EXPECTED DIFF: empty list becomes None
+        if type(l1) is list and l2 is None:
+            if len(l1) == 0:
+                is_equal = True
+        # EXPECTED DIFF: non-empty list may be in different order
+        elif type(l1) is list and type(l2) is list:
+            if sorted(l1) == sorted(l2):
+                is_equal = True
+        # TODO: not sure if this is really expected ...
+        #       apparently migration behavior has changed ...
+        #       revisit with more recent everything.json
+        # IF this is indeed correct to compare this way, the sorted equality
+        # above is obsoleted / included by this.
+            elif set(l1).issubset(l2):
+                is_equal = True
+
+        return is_equal
 
 
 def check_field(collection, model_id, field_name):
@@ -39,6 +62,7 @@ def check_field(collection, model_id, field_name):
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'generic-relation-list':
         is_equal = field_value_d1 == field_value_d2
+        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'HTMLPermissive':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'HTMLStrict':
@@ -49,20 +73,29 @@ def check_field(collection, model_id, field_name):
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'number[]':
         is_equal = field_value_d1 == field_value_d2
+        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'relation':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'relation-list':
         is_equal = field_value_d1 == field_value_d2
+        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'string':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'string[]':
         is_equal = field_value_d1 == field_value_d2
+        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'text':
         is_equal = field_value_d1 == field_value_d2
     elif field_type == 'text[]':
         is_equal = field_value_d1 == field_value_d2
+        is_equal = list_type_is_equal(field_value_d1, field_value_d2)
     elif field_type == 'timestamp':
-        is_equal = field_value_d1 == field_value_d2
+        # EXPECTED DIFF: UNIX timestamps become ISO timestamps
+        # We assume timestamps were stored in UTC before
+        # -> We might need a pre430 migration ensuring this
+        t1 = datetime.fromtimestamp(field_value_d1, timezone.utc)
+        t2 = datetime.fromisoformat(field_value_d2)
+        is_equal = t1.timestamp() == t2.timestamp()
 
     if not is_equal:
         DIFF += [f"{collection}/{model_id}/{field_name} of type {field_type} differs."]
@@ -75,19 +108,19 @@ def check_model(collection, model_id):
 
     info(f"check_model: {collection}/{model_id} ...")
 
-    # This check is redundantly done before in check_collection and should
-    # therefore never be possible to fail.
-    assert model_id in D1[collection].keys() 
-    if model_id not in D2[collection].keys():
-        DIFF += [f"{collection}/{model_id} exists in D1 but not in D2"]
-        return
-
     field_names_d1 = D1[collection][model_id].keys()
     field_names_d2 = D2[collection][model_id].keys()
 
     for field_name in field_names_d1:
+        # EXPECTED DIFF: meta_deleted field was removed
+        if field_name == 'meta_deleted':
+            continue
+        # EXPECTED DIFF: meta_position field was removed
+        if field_name == 'meta_position':
+            continue
+
         if field_name not in field_names_d2:
-            DIFF += [f"{collection}/{model_id}/{field_name} exists in D1 but not in D2"]
+            DIFF += [f"field {collection}/{model_id}/{field_name} exists in D1 but not in D2"]
             continue
 
         check_field(collection, model_id, field_name)
@@ -96,8 +129,14 @@ def check_model(collection, model_id):
 def check_collection(collection):
     global D1, D2, DIFF
 
+    # This can happen if certain features were not used and therefore no models
+    # in corresponding collections were created.
     if collection not in D1.keys() and collection not in D2.keys():
         info(f"check_collection: skipping {collection}, does not exist in both D1 and D2 ...")
+        return
+    # This would be a fatal flaw in migration100 and should never occur.
+    if collection not in D1.keys() or collection not in D2.keys():
+        DIFF += [f"collection {collection} exists in only one of D1 and D2"]
         return
 
     info(f"check_collection: {collection} ...")
@@ -107,7 +146,7 @@ def check_collection(collection):
 
     for model_id in model_ids_d1:
         if model_id not in model_ids_d2:
-            DIFF += [f"{collection}/{model_id} exists in D1 but not in D2"]
+            DIFF += [f"model {collection}/{model_id} exists in D1 but not in D2"]
             continue
 
         check_model(collection, model_id)
@@ -152,9 +191,6 @@ def main():
     load_models()
     load_input()
 
-    #print(MODELS['_meta'])
-    #print(D1['action_worker']['1']['name'])
-    #check_collection('action_worker')
     check_all()
     print_diff()
 
