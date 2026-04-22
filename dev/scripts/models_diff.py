@@ -103,7 +103,9 @@ def check_field(collection, model_id, field_name):
         DIFF += [f"  D2: {field_value_d2}"]
 
     # Remove visited field
+    info(f"visited field in D1: {collection}/{model_id}/{field_name}")
     del D1[collection][model_id][field_name]
+    info(f"visited field in D2: {collection}/{model_id}/{field_name}")
     del D2[collection][model_id][field_name]
 
 
@@ -116,11 +118,11 @@ def check_model(collection, model_id):
     field_names_d2 = list(D2[collection][model_id].keys())
 
     for field_name in field_names_d1:
-        # EXPECTED DIFF: meta_deleted field was removed
-        if field_name == 'meta_deleted':
-            continue
-        # EXPECTED DIFF: meta_position field was removed
-        if field_name == 'meta_position':
+        # EXPECTED DIFF: meta_deleted and meta_position fields were removed
+        if field_name == 'meta_deleted' or field_name == 'meta_position':
+            # Remove visited field
+            info(f"visited field in D1: {collection}/{model_id}/{field_name}")
+            del D1[collection][model_id][field_name]
             continue
 
         if field_name not in field_names_d2:
@@ -129,9 +131,20 @@ def check_model(collection, model_id):
 
         check_field(collection, model_id, field_name)
 
+    # Fields not present in D1 may appear with value None in D2
+    remaining_field_names_d2 = list(D2[collection][model_id].keys())
+    for field_name in remaining_field_names_d2:
+        if D2[collection][model_id][field_name] is None:
+            info(f"visited field in D2: {collection}/{model_id}/{field_name} (null value)")
+            del D2[collection][model_id][field_name]
+
     # Remove visited model
-    del D1[collection][model_id]
-    del D2[collection][model_id]
+    if len(D1[collection][model_id]) == 0:
+        info(f"fully visited model in D1: {collection}/{model_id}")
+        del D1[collection][model_id]
+    if len(D2[collection][model_id]) == 0:
+        info(f"fully visited model in D2: {collection}/{model_id}")
+        del D2[collection][model_id]
 
 
 def check_collection(collection):
@@ -160,8 +173,12 @@ def check_collection(collection):
         check_model(collection, model_id)
 
     # Remove visited collection
-    del D1[collection]
-    del D2[collection]
+    if len(D1[collection]) == 0:
+        info(f"fully visited collection in D1: {collection}")
+        del D1[collection]
+    if len(D2[collection]) == 0:
+        info(f"fully visited collection in D2: {collection}")
+        del D2[collection]
 
 
 def check_all():
@@ -190,16 +207,27 @@ def load_input():
         D2 = load(f2)
 
 
+def print_models(d):
+    for collection in d.keys():
+        for model_id in d[collection].keys():
+            model = f"{collection}/{model_id}"
+            print(f"  {model}: {d[collection][model_id]}")
+
+
 def print_results():
+    print()
     if len(D1) == 0 and len(D2) == 0:
         print("All collections, models and fields have been visited and compared.")
     else:
         print("Not all collections, models and fields were compared.")
         print("This hints to inconsistent data.")
-        print("Remaining data, that was not visited.")
+        print("Remaining fields in models, that were not visited.")
         print()
-        print(f"D1: {D1}")
-        print(f"D2: {D2}")
+        print("D1:")
+        print_models(D1)
+        print()
+        print("D2:")
+        print_models(D2)
 
     print()
 
