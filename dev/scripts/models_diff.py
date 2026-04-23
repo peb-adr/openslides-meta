@@ -18,6 +18,9 @@ DIFF = []
 def list_type_is_equal(l1, l2):
     is_equal = False
 
+    # Case not observed, but would count as equal
+    if l1 is None and l2 is None:
+        is_equal = True
     # EXPECTED DIFF: empty list becomes None
     if type(l1) is list and l2 is None:
         if len(l1) == 0:
@@ -26,13 +29,20 @@ def list_type_is_equal(l1, l2):
     elif type(l1) is list and type(l2) is list:
         if sorted(l1) == sorted(l2):
             is_equal = True
-    # TODO: not sure if this is really expected ...
-    #       apparently migration behavior has changed ...
-    #       revisit with more recent everything.json
-    # IF this is indeed correct to compare this way, the sorted equality
-    # above is obsoleted / included by this.
-        elif set(l1).issubset(l2):
-            is_equal = True
+
+    return is_equal
+
+
+def relation_list_type_is_equal(l1, l2):
+    is_equal = list_type_is_equal(l1, l2)
+
+    # Some back relations were not consistently maintained pre 4.3.0 .
+    # Those cases are fine as long as no ids were lost.
+    # -> i.e. l2 fully contains l1
+    if not is_equal:
+        if type(l1) is list and type(l2) is list:
+            if set(l1).issubset(l2):
+                is_equal = True
 
     return is_equal
 
@@ -66,7 +76,7 @@ def compare_value(type_, value_d1, value_d2):
     elif type_ == 'generic-relation':
         is_equal = value_d1 == value_d2
     elif type_ == 'generic-relation-list':
-        is_equal = list_type_is_equal(value_d1, value_d2)
+        is_equal = relation_list_type_is_equal(value_d1, value_d2)
     elif type_ == 'HTMLPermissive':
         is_equal = value_d1 == value_d2
     elif type_ == 'HTMLStrict':
@@ -80,7 +90,7 @@ def compare_value(type_, value_d1, value_d2):
     elif type_ == 'relation':
         is_equal = value_d1 == value_d2
     elif type_ == 'relation-list':
-        is_equal = list_type_is_equal(value_d1, value_d2)
+        is_equal = relation_list_type_is_equal(value_d1, value_d2)
     elif type_ == 'string':
         is_equal = value_d1 == value_d2
     elif type_ == 'string[]':
