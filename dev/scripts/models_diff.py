@@ -224,6 +224,13 @@ def check_model(collection, model_id):
             info(f"visited field in D2: {collection}/{model_id}/{field_name} (null value)")
             del D2[collection][model_id][field_name]
 
+    remaining_field_names_d2 = list(D2[collection][model_id].keys())
+    # Finally visiting known new fields
+    if collection in ['organization', 'meeting']:
+        if 'time_zone' in remaining_field_names_d2:
+            info(f"visited field in D2: {collection}/{model_id}/time_zone (new field)")
+            del D2[collection][model_id]['time_zone']
+
     # Remove visited model
     if len(D1[collection][model_id]) == 0:
         info(f"fully visited model in D1: {collection}/{model_id}")
