@@ -269,8 +269,6 @@ def check_collection(collection):
 
 def check_all():
     for collection in COLLECTIONS.keys():
-        if collection == '_meta':
-            continue
         check_collection(collection)
 
 
