@@ -105,6 +105,28 @@ def compare_value(type_, value_d1, value_d2):
     return is_equal
 
 
+def check_field_empty_list(collection, model_id, field_name):
+    global D1, D2, DIFF
+
+    info(f"check_field_empty_list: {collection}/{model_id}/{field_name} ...")
+
+    field_type = COLLECTIONS[collection][field_name]['type']
+    if field_type not in ['text[]', 'string[]', 'number[]']:
+        info(f"not a list type - not visiting")
+        return
+
+    field_value_d2 = D2[collection][model_id][field_name]
+    if type(field_value_d2) is not list:
+        info(f"value is no list - not visiting")
+        return
+    if len(field_value_d2) != 0:
+        info(f"value is no empty list - not visiting")
+        return
+
+    info(f"visited field in D2: {collection}/{model_id}/{field_name} (empty list)")
+    del D2[collection][model_id][field_name]
+
+
 def check_field_default(collection, model_id, field_name):
     global D1, D2, DIFF
 
@@ -189,11 +211,15 @@ def check_model(collection, model_id):
 
         check_field(collection, model_id, field_name)
 
-    # Fields not present in D1 may appear with default value or None in D2
+    # Fields not present in D1 may appear in D2
+    # - with default value
+    # - as empty list
+    # - as None (null value)
     remaining_field_names_d2 = list(D2[collection][model_id].keys())
     for field_name in remaining_field_names_d2:
         if D2[collection][model_id][field_name] is not None:
             check_field_default(collection, model_id, field_name)
+            check_field_empty_list(collection, model_id, field_name)
         else:
             info(f"visited field in D2: {collection}/{model_id}/{field_name} (null value)")
             del D2[collection][model_id][field_name]
