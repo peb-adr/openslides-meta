@@ -365,11 +365,11 @@ def build_parser():
 
     parser.add_argument(
         "d1",
-        help="Path to D1",
+        help="Path to D1 (JSON data - pre 4.3.0)",
     )
     parser.add_argument(
         "d2",
-        help="Path to D2",
+        help="Path to D2 (JSON data - post 4.3.0)",
     )
 
     return parser
