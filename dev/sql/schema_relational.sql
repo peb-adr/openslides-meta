@@ -169,11 +169,11 @@ END;
 $log_modified_trigger$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION is_timezone( tz TEXT ) RETURNS BOOLEAN as $$
+DECLARE
+    is_valid BOOLEAN;
 BEGIN
-    PERFORM now() AT TIME ZONE tz;
-    RETURN TRUE;
-EXCEPTION WHEN invalid_parameter_value THEN
-    RETURN FALSE;
+    SELECT EXISTS (SELECT 1 FROM pg_timezone_names WHERE name=tz) INTO is_valid;
+    RETURN is_valid;
 END;
 $$ language plpgsql STABLE;
 
