@@ -1415,6 +1415,10 @@ class Helper:
         DECLARE
             is_valid BOOLEAN;
         BEGIN
+            IF tz IS NULL THEN
+                RETURN TRUE;
+            END IF;
+
             SELECT EXISTS (SELECT 1 FROM pg_timezone_names WHERE name=tz) INTO is_valid;
             RETURN is_valid;
         END;
