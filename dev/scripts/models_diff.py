@@ -162,7 +162,7 @@ def check_field(collection, model_id, field_name):
     field_value_d1_human_readable = ""
     field_value_d2_human_readable = ""
     if field_type == 'timestamp':
-        field_value_d1_human_readable = f"  ({str(datetime.fromtimestamp(field_value_d1))})"
+        field_value_d1_human_readable = f"  ({datetime.fromtimestamp(field_value_d1, timezone.utc)})"
 
     is_equal = compare_value(field_type, field_value_d1, field_value_d2)
 
