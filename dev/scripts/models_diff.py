@@ -51,9 +51,7 @@ def relation_list_type_is_equal(l1, l2):
 
 def timestamp_is_equal(s1, s2):
     # EXPECTED DIFF: UNIX timestamps become ISO timestamps
-    # We assume timestamps were stored in UTC before
-    # -> We might need a pre430 migration ensuring this
-    t1 = datetime.fromtimestamp(s1, timezone.utc) - timedelta(hours=0)
+    t1 = datetime.fromtimestamp(s1, timezone.utc)
     t2 = datetime.fromisoformat(s2)
 
     return t1.timestamp() == t2.timestamp()
