@@ -58,49 +58,48 @@ def timestamp_is_equal(s1, s2):
 
 
 def compare_value(type_, value_d1, value_d2):
-
     # assume not equal until proven otherwise
     is_equal = False
 
-    # To be very explicit we will now look at all known field types distinctly,
-    # although in most cases '==' equality should suffice.
+    # To be very explicit we will now look at all known field types distinctly.
 
-    if type_ == 'boolean':
+    # In most cases '==' equality suffices.
+    if type_ in [
+        'boolean',
+        'color',
+        'decimal(6)',
+        'float',
+        'generic-relation',
+        'HTMLPermissive',
+        'HTMLStrict',
+        'JSON',
+        'number',
+        'relation',
+        'string',
+        'text'
+    ]:
         is_equal = value_d1 == value_d2
-    elif type_ == 'color':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'decimal(6)':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'float':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'generic-relation':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'generic-relation-list':
-        is_equal = relation_list_type_is_equal(value_d1, value_d2)
-    elif type_ == 'HTMLPermissive':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'HTMLStrict':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'JSON':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'number':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'number[]':
-        is_equal = list_type_is_equal(value_d1, value_d2)
-    elif type_ == 'relation':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'relation-list':
-        is_equal = relation_list_type_is_equal(value_d1, value_d2)
-    elif type_ == 'string':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'string[]':
-        is_equal = list_type_is_equal(value_d1, value_d2)
-    elif type_ == 'text':
-        is_equal = value_d1 == value_d2
-    elif type_ == 'text[]':
-        is_equal = list_type_is_equal(value_d1, value_d2)
-    elif type_ == 'timestamp':
+
+    # In other cases we need to compare in a more specific way.
+    elif type_ in [
+        'timestamp'
+    ]:
         is_equal = timestamp_is_equal(value_d1, value_d2)
+    elif type_ in [
+        'number[]',
+        'string[]',
+        'text[]'
+    ]:
+        is_equal = list_type_is_equal(value_d1, value_d2)
+    elif type_ in [
+        'generic-relation-list',
+        'relation-list'
+    ]:
+        is_equal = relation_list_type_is_equal(value_d1, value_d2)
+
+    # This should never happen.
+    else:
+        DIFF += [f"type {type_} is not recognized."]
 
     return is_equal
 
