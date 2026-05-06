@@ -105,7 +105,7 @@ def compare_value(type_, value_d1, value_d2):
 
 
 def check_field_empty_list(collection, model_id, field_name):
-    global D1, D2, DIFF
+    global D2
 
     log(4, f"check_field_empty_list: {collection}/{model_id}/{field_name} ...")
 
@@ -127,7 +127,7 @@ def check_field_empty_list(collection, model_id, field_name):
 
 
 def check_field_default(collection, model_id, field_name):
-    global D1, D2, DIFF
+    global D2, DIFF
 
     log(4, f"check_field_default: {collection}/{model_id}/{field_name} ...")
 
